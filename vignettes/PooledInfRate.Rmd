@@ -1,0 +1,312 @@
+---
+title: "PooledInfRate"
+author: "Brad J. Biggerstaff"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PooledInfRate}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: References.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Introduction
+
+Applications of _pooled_ or _group testing_ include two general aims: estimation of the population individual-level probability of positivity; and cost-efficient schemes of identification of positive individuals.  The _PooledInfRate_ package is concerned only with estimation applications.  Functionality includes point and interval estimation of a proportion from binary (_positive_ / _negative_) samples that have been pooled or grouped before assessment of positivity, which is determined only at the pool level.  Estimation applications date back at least to @ChiRee1962, who developed asymptotic likelihood-based methods for pools of equal size in application to estimation of virus infection in mosquito collections. These authors also extended their analyses to two different pool sizes under a simplifying assumption to make the mathematical development tractable, but they were constrained from further extension by computational tools available at the time.  The package name "PooledInfRate" is based on the use of "infection rate" in entomological applications and follows the author's development of the Microsoft Excel&trade; (@msexcel) add-in of the same name (https://www.cdc.gov/westnile/resourcepages/mosqSurvSoft.html).
+
+The computational functionality of routines in this package for point estimation are the standard maximum likelihood estimate (MLE); the bias corrected estimate based on the methods of Gart (see @Gar1991), as implemented by @Hep2005; the bias-reduced estimate based on Firth's correction (see @Fir1993 and @HepBig2017); and the traditional _minimum infection rate_ (MIR) estimate used in entomology.  Confidence intervals (CI) included are the score, skewness-corrected score, and bias-and-skewness-corrected score intervals following Gart (@Gar1991) [see @Hep2005]; the interval obtained by inverting the likelihood ratio test; the Wald interval; and an interval based on the MIR (see @Hep2005 and @Big2008 for evaluations of these intervals).  Also included are routines to compute point and CI estimates for the differences of proportions estimated from pooled samples, as detailed in @Big2008.
+
+To complement applications involving entomological surveillance for pathogens in disease vectors such as mosquitoes, the package provides routines to compute the _Vector Index_ (@FauEtAl2015), a measure incorporating both population size or density and of vector infection prevalences ("infection rate"). Its computation is outlined below.
+
+The methods mentioned so far assume that perfect tests or assays are used in testing the pools for "positivity." Extending this, functionality is included for point estimation when using an imperfect test with known sensitivity and specificity. Following @HepBig2021, methods based both on Firth's correction (@Fir1993) and on the standard MLE are included. There is currently a lack of theoretical work in this area for CI estimation in the case of imperfect tests, so none are presently included; future theoretical and corresponding package development in this area is anticipated.
+
+
+### Data structure
+
+A variety of data structures may be used with estimation functions in _PooledInfRate_.  As with R functionality in general, either individual <tt>vector</tt> objects or <tt>data.frame</tt> objects supply the data to the functions.  The data must have at a minimum a recording of the number of positive pools, <tt>x</tt>, and the pool sizes, <tt>m</tt>, corresponding to those pools.  A variable giving the number of pools, <tt>n</tt>, corresponding to those records may also be specified, and when none is given, the values for <tt>x</tt> are assumed to be <tt>0/1</tt> and each <tt>n</tt> is assumed to be <tt>1</tt> by default.  To carry out the same analyses for multiple groups at once, a grouping variable, either as a factor or a numeric vector that will be treated as a factor may be used.  Illustrations for acceptable data formats are
+
+```{r}
+x <- c(1,0,0,0)
+m <- c(50,25,10,5)
+```
+and
+```{r}
+ex1.dat <- data.frame(Pos = c(1,0,0,0), PoolSize = c(50,25,10,5))
+ex1.dat
+```
+and
+```{r}
+ex2.dat <- data.frame(Pos = c(2,1,0,1), PoolSize = c(50,25,10,5), NumPools = c(10,10,5,2), Location = c("A","A","B","B"))
+ex2.dat
+```
+and if there are different groups, say <tt>Species</tt>, 
+```{r}
+mosq.dat <- data.frame(Zone = c(1,1,2,2, 1,1,1,2,2, 1,1,2),
+                       Species = rep(c("Culex pipiens","Culex tarsalis", "Culex quinquefaciatus"), c(4,5,3)),
+                       Pos = c(1,0,0,1, 1,0,1,0,0, 0,1,0),
+                       PoolSize = c(100,50,25,5, 200,100,50,25,10, 25,10,5),
+                       Nights = c(5,5,3,3,5,5,5,3,3,5,5,3))
+mosq.dat
+```
+                      
+Other data may naturally be included in data frames, and we will include these data sets and needed extensions of these data sets in certain examples below.
+
+### One-sample estimation (perfect test)
+
+#### Function interfaces
+
+The functions <tt>pooledBin</tt> ("pooled binary") provides the interface to both point and CI estimates, and there are both <tt>default</tt> and <tt>formula</tt> interfaces provided.  The function <tt>pIR</tt> ("pooled infection rate") is a copy of <tt>pooledBin</tt> with a slightly different, and shorter name merely for convenience; in all the examples below, <tt>pooledBin</tt> and <tt>pIR</tt> can be used interchangeably. For single samples, the default methods are straightforward, with printed output being the point estimate and computed CI:
+```{r}
+library(PooledInfRate)
+
+pooledBin(x,m)
+
+with(ex2.dat, pooledBin(Pos, PoolSize, NumPools))
+
+with(mosq.dat, pIR(Pos, PoolSize))
+```
+
+When there is a grouping variable, as with the <tt>mosq.dat</tt> data set, an optional <tt>group=</tt> may be used to obtain individual results for each group:
+```{r}
+with(mosq.dat, pooledBin(Pos, PoolSize, group = Species))
+```
+
+The <tt>formula</tt> interface in R provides a convenient, generally consistent interface to modeling function expressions, and this interface has been adapted to ease use of the functions in <tt>PooledInfRate</tt>.  As an example,
+```{r}
+pooledBin(Pos ~ PoolSize, mosq.dat) # the second function argument is data=
+```
+Specification of a grouping variable is made using a vertical bar (<tt>|</tt>) in the formula:
+```{r}
+pooledBin(Pos ~ PoolSize | Species, mosq.dat) # the second function argument is data=
+```
+This example data set <tt>mosq.dat</tt> does not have a "number of pools" variable, so the above evaluations do not need this specified, since by default this is a vector of <tt>1</tt>s.  Use of formula interface to specify such a variable is required for the <tt>ex2.dat</tt> data set, however, and this is accommodated using "special" functions <tt>m()</tt> and <tt>n()</tt> (echoing the mathematical exposition in @HepBig2017).  As an illustration, the following incorporates this variable:
+```{r}
+pooledBin(Pos ~ m(PoolSize) + n(NumPools), ex2.dat)
+```
+Because the pool size variable (<tt>m()</tt>) is _required_ for any pooled estimation (and because it is easier when there is less typing), the <tt>m()</tt> specification is optional, so that
+```{r}
+pooledBin(Pos ~ PoolSize + n(NumPools), ex2.dat)
+```
+gives the same result.  Further, since the <tt>m()</tt> and <tt>n()</tt> identifiers communicate to the fitting functions the roles of the variables, the order does not matter in the formula, so that the following all provide the same result:
+```{r}
+pooledBin(Pos ~ m(PoolSize) + n(NumPools), ex2.dat)
+pooledBin(Pos ~   PoolSize  + n(NumPools), ex2.dat)
+pooledBin(Pos ~ n(NumPools) + m(PoolSize), ex2.dat)
+pooledBin(Pos ~ n(NumPools) +   PoolSize , ex2.dat)
+```
+Specification of the grouping variable is as above:
+```{r}
+pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
+```
+
+#### Summary and plot methods
+
+To print out more detailed information on the estimation results, <tt>summary</tt> methods are provided.  The resulting output contains details including the estimates themselves, estimation methods used, the total numbers of positive pools, the total number of individuals, and the total number of pools.
+```{r}
+pir.combined.out <- pIR(Pos ~ PoolSize + n(NumPools), ex2.dat)
+summary(pir.combined.out)
+
+pir.location.out <- pIR(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
+summary(pir.location.out)
+
+pir.mosq.out <- pIR(Pos ~ PoolSize | Species, mosq.dat)
+summary(pir.mosq.out)
+```
+
+A plot method of the diagnostic tool described by @CheSwa1990 to evaluate the suitability of the binomial model is available.
+```{r}
+plot(pir.combined.out)
+```
+and this also works when there are groups (though adjustment of the <tt>layout</tt> parameter may be required).
+
+#### Missing data
+
+Records with missing data on any of the variables used in the function calls are removed for estimation.  For example,
+```{r}
+x.na <- c(1,0,0,NA,1)
+m.na <- c(10,50,25,10,10)
+
+pooledBin(x.na, m.na)
+
+summary(pooledBin(x.na,m.na))
+```
+and this is also true using the <tt>formula</tt> method interface.
+
+
+#### Options
+
+###### Estimation methods
+
+As described above, there are several point and CI methods available, and the choices are specified with the <tt>pt.method</tt> and <tt>ci.method</tt> parameters.
+```{r}
+pIR(Pos ~ PoolSize, mosq.dat, pt.method = "firth", ci.method = "skew-score") # the defaults 
+pIR(Pos ~ PoolSize, mosq.dat, pt.method = "gart", ci.method = "score") 
+pIR(Pos ~ PoolSize, mosq.dat, pt.method = "mle", ci.method = "wald") 
+pIR(Pos ~ PoolSize, mosq.dat, pt.method = "mir", ci.method = "mir") # specification of "mir" for either sets the other to "mir"
+```
+
+Also, note that when all pool sizes are <tt>1</tt>, then there is no pooling, so the standard Wilson score interval is returned, and <tt>pt.method</tt> is set to <tt>"mle"</tt> and <tt>ci.method</tt> is set to "score" in this case.
+
+For users of the Microsoft Excel&trade; PooledInfRate add-in: *the default point estimation method for this R package is Firth's method, which is different than the one in Excel&trade;, which is Gart's method.*  This is because Firth's method was shown in @HepBig2017 to perform generally better.
+
+###### Scale
+
+Estimated values for the prevalence are often very small in pooled testing applications, so a <tt>scale</tt> parameter is provided to facilitate reading output (<tt>scale = 1000</tt> is often used in entomological applications).  Results are printed using the specified scale, both with the standard <tt>print</tt> and <tt>summary</tt> methods.
+```{r}
+pIR(Pos ~ PoolSize, mosq.dat) # default scale = 1
+pIR(Pos ~ PoolSize, mosq.dat, scale=1000)
+```
+
+###### Confidence level and algorithm precision
+
+To set the desired confidence level for CIs, the parameter <tt>alpha</tt>, with default <tt>alpha = 0.05</tt>, is used, with the confidence level equal to <tt>100(1-alpha)%</tt>.
+
+The estimation methods used require iterative numerical computation, and the parameter <tt>tol</tt> (for "tolerance") is used to indicate how precisely estimation is required; the default is <tt>.Machine$double.eps^0.5</tt>.
+
+
+### Differences of proportions (two-sample)
+
+
+The "equal" pair of functions <tt>pooledBinDiff</tt> / <tt>pIRDiff</tt> compute confidence intervals for differences of proportions, as detailed in @Big2008. The interface for the default call is an expansion of the one-sample call: <tt>pooledBin(x1,m1,x2,m2)</tt>.  For the formula interface, these functions are exactly the same as for the one-sample case, only a <tt>group</tt> variable is in this case _required_.  Estimates of differences and CIs for all pairwise differences of the levels of the grouping variable are computed, and a <tt>summary</tt> method provides detail, including individual group estimates. Examples follow.
+```{r}
+x1 <- c(1,0,0,0)
+m1 <- c(100,50,25,10)
+x2 <- c(1,1,0,0)
+m2 <- c(50,40,30,20)
+pooledBinDiff(x1,m1,x2,m2)
+
+n1 <- c(10,20,30,40)
+n2 <- rep(1,4)
+pooledBinDiff(x1,m1,x2,m2,n1,n2)
+
+pooledBinDiff(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
+
+mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat)
+summary(mdiff.out)
+```
+#### Missing data
+
+As with the one-sample functions, records with missing data on any of the variables used in the function calls are removed for estimation.
+
+#### Options
+
+Options <tt>scale</tt>, <tt>alpha</tt>, and <tt>tol</tt> are the same as for the one-sample functions.
+
+### Vector Index
+
+In mosquito-borne disease surveillance, the _Vector Index_ (_VI_) is a measure used in evaluating risk of infection in a human population, often to aid decisions on community interventions, such as area-wide vector mosquito abatement (see, e.g., @FauEtAl2015).  Primarily used in mosquito-borne disease surveillance, the _VI_ is the sum of the products of a measure of population "size" and the infection rate over vector species.  Because this definition requires the specification of "vector species" over which to perform these computations, an additional variable is needed beyond those specified in the <tt>pooledBin</tt> / <tt>pIR</tt> functions above.  This is accommodated in the default and formula interfaces as follows.  
+
+Field collections of mosquitoes used for such surveillance can result in a wide range of data configurations, and the individuals that contribute to the  population size measures may not be the same as those used in estimating the infection rate (prevalence).  
+
+###### All and only individuals in pools contribute to population size measure
+
+The most straightforward data situation is when all individuals in the collection are used in both components, the population measure and the infection rate estimate.  Data in this case may be formatted as above, say with the example <tt>mosq.dat</tt> data set and the example just shown.
+
+For the default interface, a <tt>vector</tt> parameter is used, so using the <tt>mosq.dat</tt> example data set above,
+```{r}
+vi.out <- with(mosq.dat, vectorIndex(Pos,PoolSize,vector=Species)) # or VI(Pos,PoolSize,vector=Species)
+vi.out
+```
+and there is a <tt>summary</tt> method available to provide detail:
+```{r}
+summary(vi.out)
+```
+Using the formula interface, the vector species variable is specified after a forward slash symbol (<tt>/</tt>), written after the main part of the formula:
+```{r}
+vectorIndex(Pos ~ PoolSize / Species, mosq.dat)
+```
+
+Computing the _VI_ by groups is available using the same interface as groups for the one- and two-sample functions. Note, however, that using the <tt>formula</tt> interface, the group variable **must** come before the slash (<tt>/</tt>) indicating the vector species variable. Examples using the <tt>mosq.dat</tt> data set are
+```{r}
+with(mosq.dat, vectorIndex(Pos, PoolSize, vector=Species, group=Zone))
+     
+VI(Pos ~ PoolSize | Zone / Species, mosq.dat)
+```
+
+The above calculations assume that collection effort is constant (i.e., represents the same time in the environment for collection) across traps.  Mosquito trapping effort, often expressed "per trap night" to reflect the duration between retrievals of specimens, may differ by trap, however, and when pools are trap-specific or contain individuals caught in traps using the same effort, a trapping effort variable provided to specify this.  For the <tt>default</tt> interface, a <tt>trap.time</tt> variable is specified, while for the <tt>formula</tt> interface the variable is included _after_ the <tt>Vector</tt> variable, separated by a colon (<tt>:</tt>).  Examples using the <tt>mosq.dat</tt> data set are
+```{r}
+with(mosq.dat, vectorIndex(Pos, PoolSize, vector=Species, trap.time = Nights, group=Zone))
+     
+VI(Pos ~ PoolSize | Zone / Species:Nights, mosq.dat)
+```
+
+
+###### An external data set (only) is used to provide the population size measure
+
+It may be that field collections used for computing the measure of population size differ, or that individual mosquitoes are pooled from different traps possibly representing different collection efforts.  If the counts of mosquitoes caught are aggregated separately by collection effort, and otherwise some or all of them are pooled for testing and infection rate estimation, these pieces of data may be combined in computing the _VI_ by formatting the data using missing values (<tt>NA</tt>) for the <tt>response</tt> data to be used in computing the population size measure.  This is possible in both the <tt>default</tt> and <tt>formula</tt> interfaces by correct specification of the <tt>n.use.traps</tt> and <tt>n.use.na</tt> parameter options, which indicate what subsets of the data are to be used to compute the population measure (reflected in the "<tt>n.use.</tt>" in the parameter names). 
+
+As an example data set, the document [_West Nile Virus in the United States: Guidelines for Surveillance, Prevention, and Control_](https://www.cdc.gov/westnile/resources/pdfs/wnvguidelines.pdf) of the US Centers for Disease Control and Prevention, Division of Vector-Borne Diseases, contains this example data set in Appendix 2 (written here in aggregated form):
+```{r}
+pools.dat <- data.frame(Species=c("Cx. tarsalis","Cx. pipiens"),Pos=c(1,1),PoolSize=c(50,50),NumPools=c(6,5))
+pools.dat
+```
+In addition to the pool testing data, the total number of _Cx. tarsalis_ caught for 6 traps was 442, and the total number of _Cx. pipiens_ caught for 6 traps was 233.  To include this information in the <tt>pools.dat</tt> data set, (1) enter missing values (<tt>NA</tt>) for the "number positive" variable (<tt>x</tt>); (2) treat the "pool size" variable (<tt>m</tt>) as the collection count; and augment "number of pools" variable (<tt>n</tt>) as <tt>1</tt>.
+```{r}
+traps.dat <- data.frame(Species = c("Cx. tarsalis","Cx. pipiens"),Pos = c(NA,NA),PoolSize=c(442, 233),NumPools=c(1,1)) # note NumPools should be 1 for each entry
+vi.dat <- rbind(pools.dat, traps.dat)
+vi.dat
+
+VI(Pos ~ PoolSize + n(NumPools) / Species, vi.dat, n.use.traps = FALSE, n.use.na = TRUE)
+summary(VI(Pos ~ PoolSize + n(NumPools) / Species, vi.dat, n.use.traps = FALSE, n.use.na = TRUE))
+```
+Finally, to account for trapping effort, recall that these vector mosquito counts are from 6 traps (assumed to be for 1 night each).  Augment the <tt>vi.dat</tt> data set as
+```{r}
+vi.dat$TrapNights <- c(1,1,6,6) # put 1s in for the pool data for later; use values for trap nights in application
+vi.dat
+
+VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = FALSE, n.use.na = TRUE)
+summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = FALSE, n.use.na = TRUE))
+```
+The <tt>Avg N</tt> values reported in the <tt>summary</tt> result match the CDC result.  To match the _VI_ result exactly, note that the CDC computation used the MIR as the estimate of the infection rate, so compute this using
+```{r}
+VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = FALSE, n.use.na = TRUE, pt.method="mir")
+summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = FALSE, n.use.na = TRUE, pt.method="mir"))
+```
+
+###### An external data set together with the pooled data sizes (counts) are used to provide the population size measure
+
+Finally, if the individuals in the pools are not also counted in the "not-tested" data set (since doing so would over-count the collected number of individuals), these counts can be included in the computation of the population size measure, making sure that the collection effort variable (<tt>trap.time</tt>; <tt>TrapNights</tt> in the example) is correct for all the individuals in the pools.  To include these in the computation, simply set the <tt>n.use.traps</tt> variable to <tt>TRUE</tt>:
+```{r}
+# not trying to match the CDC guidelines report here, since in the example more individuals are
+# included in the population size (mosquito density) measure
+VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = TRUE, n.use.na = TRUE)
+summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = TRUE, n.use.na = TRUE))
+```
+
+###### Options
+
+Other options to the <tt>vectorIndex</tt> / <tt>VI</tt> functions are the same as those for <tt>pooledBin</tt>, so that the user may specify the method for point estimation.
+
+###### Confidence interval for _VI_
+
+The _VI_ is a measure used for evaluation of infection risk of some human pathogen, but in principle it is not estimating a population quantity, though it is expected to be proportional to the number of infected individual vectors.  Because of this, at this time functionality is not included to compute CIs (which are inferential beasts, after all) to accompany _VI_ computations.  Inclusion of CI computations to provide some measure of "uncertainty" or "variability" of the _VI_ computed is being evaluated, and this would be straightforward conditional on the collection counts.  A more complete measure of such variability would include uncertainty in the counts, too, and this is not presently available (but is being evaluated). 
+
+### Imperfect test
+
+The methods used for point estimation of population individual-level prevalence using <tt>pooledBin</tt> assume that the test used to assess the "positivity" of a pool are perfect.  @HepBig2021 extend the methods of @HepBig2017 to include imperfect tests, quantified through known values for test _sensitivity_ and _specificity_.  This functionality is available via the function <tt>ipooledBin</tt>; there is not at present a corresponding <tt>ipIR</tt>, as further development will see this extension incorporated directly into <tt>pooledBin</tt>.
+
+The principle difference between <tt>pooledBin</tt> and <tt>ipooledBin</tt> is the specification of the parameters <tt>sens</tt> and <tt>spec</tt>, which both default to <tt>1</tt>, a default perfect test.  Using the <tt>mosq.dat</tt> data set from above:
+```{r}
+ipooledBin(Pos ~ PoolSize | Species, mosq.dat, sens=0.9, spec=0.95) 
+summary(ipooledBin(Pos ~ PoolSize | Species, mosq.dat, sens=0.9, spec=0.95))
+```
+Estimates based on the uncorrected MLE for imperfect tests are also available by setting the <tt>pt.method</tt> parameter:
+```{r}
+ipooledBin(Pos ~ PoolSize | Species, mosq.dat, sens=0.9, spec=0.95, pt.method="mle") 
+summary(ipooledBin(Pos ~ PoolSize | Species, mosq.dat, sens=0.9, spec=0.95, pt.method="mle"))
+```
+
+Compared to <tt>pooledBin</tt>, the additional parameter <tt>p.start</tt> gives the user the options of specifying a starting starting value for the numerical algorithm (Newton-Raphson) used in estimation; there is a default value set for this when <tt>p.start = NULL</tt>, as is the default.
+
+Confidence intervals are not included as a option for <tt>ipooledBin</tt>, because at present there is not a theoretically recommended method.  (This is why this functionally has not yet been incorporated into the base <tt>pooledBin</tt> function.)
+
+Finally, a word of caution:  as noted in @HepBig2021, convergence of the computational algorithm in the presence of an imperfect test is not assured (either computationally or theoretically) for every value of sensitivity and specificity for a given data set, as some data are simply incompatible with some test performance specifications.  Should the user encounter convergence issues using specified values for <tt>sens</tt> and <tt>spec</tt>, the recommendation is to evaluate estimates for a variety of these parameter specifications, perhaps beginning by assuming a perfect test, to see how estimates are impacted by such specifications. 
+
+---

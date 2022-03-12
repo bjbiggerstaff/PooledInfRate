@@ -1,0 +1,101 @@
+export(pooledBin,pIR,vectorIndex,VI,pooledBinDiff,pIRDiff,
+       print.pooledBin,summary.pooledBin,plot.pooledBin,
+       print.pooledBinList,summary.pooledBinList,plot.pooledBinList,
+       print.pIR,summary.pIR,plot.pIR,
+       print.pIRList,summary.pIRList,plot.pIRList,
+       print.pooledBinDiff,summary.pooledBinDiff,
+       print.summary.pooledBinDiff,
+       print.pIRDiff,summary.pIRDiff,print.summary.pIRDiff,
+       ipooledBin,print.ipooledBin,summary.ipooledBin,print.summary.ipooledBin,
+       print.ipooledBinList,summary.ipooledBinList,print.summary.ipooledBinList)
+
+import(graphics,knitr)
+importFrom("stats","lm","qchisq","qnorm","uniroot","as.formula","terms","na.omit")
+
+S3method(print,  pooledBin)
+S3method(summary,pooledBin)
+S3method(plot,   pooledBin)
+
+S3method(print,  pooledBinList)
+S3method(summary,pooledBinList)
+S3method(plot,   pooledBinList)
+
+S3method(print, summary.pooledBin)
+S3method(print, summary.pooledBinList)
+
+S3method(pooledBin, default)
+S3method(pooledBin, formula)
+
+S3method(print,  pIR)
+S3method(summary,pIR)
+S3method(plot,   pIR)
+
+
+S3method(print,  pIRList)
+S3method(summary,pIRList)
+S3method(plot,   pIRList)
+
+S3method(print, summary.pIR)
+S3method(print, summary.pIRList)
+
+S3method(pIR, default)
+S3method(pIR, formula)
+
+S3method(vectorIndex, default)
+S3method(vectorIndex, formula)
+
+S3method(VI, default)
+S3method(VI, formula)
+
+S3method(print, vectorIndex)
+S3method(print, vectorIndexList)
+
+S3method(summary, vectorIndex)
+S3method(summary, vectorIndexList)
+
+S3method(print, summary.vectorIndex)
+S3method(print, summary.vectorIndexList)
+
+S3method(print, VI)
+S3method(print, VIList)
+
+S3method(summary, VI)
+S3method(summary, VIList)
+
+S3method(print, summary.VI)
+S3method(print, summary.VIList)
+
+
+S3method(pooledBinDiff,default)
+S3method(pooledBinDiff,formula)
+
+S3method(print,pooledBinDiff)
+S3method(summary,pooledBinDiff)
+
+S3method(print, summary.pooledBinDiff)
+
+S3method(pIRDiff, default)
+S3method(pIRDiff, formula)
+S3method(print,   pIRDiff)
+S3method(summary, pIRDiff)
+S3method(print,   summary.pIRDiff)
+
+
+
+
+
+
+S3method(print,  ipooledBin)
+S3method(summary,ipooledBin)
+
+S3method(print,  ipooledBinList)
+S3method(summary,ipooledBinList)
+
+S3method(print, summary.ipooledBin)
+S3method(print, summary.ipooledBinList)
+
+S3method(ipooledBin, default)
+S3method(ipooledBin, formula)
+
+
+
