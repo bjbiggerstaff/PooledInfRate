@@ -47,7 +47,7 @@ You can install PooledInfRate from GitLab:
 # and need to set
 # Sys.setenv(R_QPDF="true") # for the build
 # then 
-devtools::install_git("https://git.cdc.gov/bkb5/PooledInfRate")
+devtools::install_git("https://git.cdc.gov/bkb5/PooledInfRate",build_vignettes = TRUE)
 ```
 
 ## Example
