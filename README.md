@@ -23,8 +23,12 @@ this waiver of copyright interest.
 
 # PooledInfRate
 
-The PooledInfRate package provides functions to estimate proportions
-from pooled or group testing data.
+PooledInfRate is an [R](www.r-project.org) package provides functions to
+estimate proportions from pooled or group testing data. There is also
+functionality to estimate differences of such proportions. Finally, for
+entomologists, there is functionality to compute the so-called “Vector
+Index” used to quantify the level of pathogen in vector species, such as
+the amount of West Nile virus in a population of vector mosquitoes.
 
 ## Installation
 
@@ -43,7 +47,7 @@ devtools::install_git("https://git.cdc.gov/bkb5/PooledInfRate")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+A couple of basic example with contrived data:
 
 ``` r
 library(PooledInfRate)
@@ -53,4 +57,15 @@ m <- c(50,25,10,5)
 pooledBin(x,m)
 #>            P        Lower        Upper 
 #> 0.0125791125 0.0007261606 0.0782849595
+
+pool.dat <- data.frame(Pos = c(1,1,0,0), PoolSize = c(100,50,25,10), NumPools = c(5,8,2,3))
+pooledBin(Pos ~ PoolSize, data = pool.dat)
+#>           P       Lower       Upper 
+#> 0.016027508 0.002879876 0.087085470
+pIR(Pos ~ PoolSize + n(NumPools), data = pool.dat) # pIR is just a short name for 'pooledBin'
+#>            P        Lower        Upper 
+#> 0.0021291703 0.0003860092 0.0071072711
 ```
+
+See the package vignette for detailed examples of the methods and user
+interface.
