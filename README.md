@@ -28,8 +28,8 @@ library(PooledInfRate)
 x <- c(1,0,0,0)
 m <- c(50,25,10,5)
 pooledBin(x,m)
-#>      P  Lower  Upper 
-#> 0.0126 0.0007 0.0783
+#>            P        Lower        Upper 
+#> 0.0125791125 0.0007261606 0.0782849595
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`?

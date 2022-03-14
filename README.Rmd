@@ -25,7 +25,13 @@ The PooledInfRate package provides functions to estimate proportions from pooled
 You can install PooledInfRate from GitLab:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# To install from GitLab CDC
+# library(devtools) # need to install this if you do not have it
+# This will build on the fly, so you need
+# RTools (available from CRAN)
+# and need to set
+# Sys.setenv(R_QPDF="true") # for the build
+# then 
 devtools::install_git("https://git.cdc.gov/bkb5/PooledInfRate")
 ```
 
