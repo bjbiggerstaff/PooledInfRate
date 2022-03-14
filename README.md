@@ -23,7 +23,7 @@ this waiver of copyright interest.
 
 # PooledInfRate
 
-<img src="PIR.png" width="200" height="200" style="float: right;"/>
+<img src="PIR.png" width="200" height="200" style="float:right"/>
 
 PooledInfRate is an [R](www.r-project.org) package provides functions to
 estimate proportions from pooled or group testing data. There is also
