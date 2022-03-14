@@ -24,7 +24,7 @@ This repository constitutes a work of the United States Government and is not su
 
 # PooledInfRate
 
-![](PIR.png)
+![](PIR.png){width=25%}
 
 
 PooledInfRate is an [R](www.r-project.org) package provides functions to estimate proportions from pooled or group testing data.  There is also functionality to estimate differences of such proportions.  Finally, for entomologists, there is functionality to compute the so-called "Vector Index" used to quantify the level of pathogen in vector species, such as the amount of West Nile virus in a population of vector mosquitoes.
