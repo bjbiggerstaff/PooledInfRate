@@ -3,3 +3,9 @@
 ^doc$
 ^Meta$
 ^README\.Rmd$
+^DISCLAIMER\.Rmd$
+^DISCLAIMER\.md$
+^LICENSE\.Rmd$
+^LICENSE\.md$
+^LICENSE\.txt$
+PIR.png
