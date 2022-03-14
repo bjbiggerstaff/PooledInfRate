@@ -12,11 +12,17 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
+# DISCLAIMER
+
+This package/application is provided without warranty of any kind.
+
+While every effort has been made to ensure that that routines provide correct and accurate results, all responsibility for the use of the results belongs to the user.
+
+# Public Domain
+
+This repository constitutes a work of the United States Government and is not subject to domestic copyright protection under 17 USC § 105. This repository is in the public domain within the United States, and copyright and related rights in the work worldwide are waived through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/). All contributions to this repository will be released under the CC0 dedication. By submitting a pull request you are agreeing to comply with this waiver of copyright interest.
 
 # PooledInfRate
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 The PooledInfRate package provides functions to estimate proportions from pooled or group testing data.
 
@@ -46,9 +52,3 @@ x <- c(1,0,0,0)
 m <- c(50,25,10,5)
 pooledBin(x,m)
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
-
-
