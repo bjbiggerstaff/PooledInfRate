@@ -8,5 +8,5 @@ Author: Brad J. Biggerstaff [aut, cre]
 Maintainer: "Brad J. Biggerstaff" <bkb5@cdc.gov>
 Imports: stats, knitr, rmarkdown, utils
 VignetteBuilder: knitr
-License: Apache License (>= 2.0)
+License: Apache License (>= 2.0) 
 Encoding: UTF-8
