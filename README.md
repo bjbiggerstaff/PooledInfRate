@@ -15,14 +15,6 @@ entomologists, there is functionality to compute the so-called “Vector
 Index” used to quantify the level of pathogen in vector species, such as
 the amount of West Nile virus in a population of vector mosquitoes.
 
-## DISCLAIMER
-
-This package/application is provided without warranty of any kind.
-
-While every effort has been made to ensure that that routines provide
-correct and accurate results, all responsibility for the use of the
-results belongs to the user.
-
 ## Public Domain
 
 This repository constitutes a work of the United States Government and
@@ -34,6 +26,14 @@ dedication](https://creativecommons.org/publicdomain/zero/1.0/). All
 contributions to this repository will be released under the CC0
 dedication. By submitting a pull request you are agreeing to comply with
 this waiver of copyright interest.
+
+## DISCLAIMER
+
+This package/application is provided without warranty of any kind.
+
+While every effort has been made to ensure that that routines provide
+correct and accurate results, all responsibility for the use of the
+results belongs to the user.
 
 ## Installation
 
