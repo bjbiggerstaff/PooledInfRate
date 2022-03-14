@@ -25,6 +25,11 @@ this waiver of copyright interest.
 
 <img src="PIR.png" width="120" align="right"/>
 
+PooledInfRate: Estimation from pooled or group testing.
+
+The website for this project is
+<https://git.cdc.gov/bkb5/pooledinfrate.git/>.
+
 PooledInfRate is an [R](www.r-project.org) package provides functions to
 estimate proportions from pooled or group testing data. There is also
 functionality to estimate differences of such proportions. Finally, for
