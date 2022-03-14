@@ -73,4 +73,4 @@ pIR(Pos ~ PoolSize + n(NumPools), data = pool.dat) # pIR is just a short name fo
 ```
 
 See the package vignette for detailed examples of the methods and user
-interface.
+interface, along with references for the methods.
