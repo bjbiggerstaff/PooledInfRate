@@ -45,7 +45,7 @@
 
       #attributes(ans) <- list(class = "pooledBinList", group.names = groups, group.var = group.var,call=call)
 
-      ans <- structure(ans, class = "pooledBinList", group.names = groups, group.var = group.var,call=call)
+      ans <- structure(ans, class = "pooledBinList", group.names = groups, group.var = group.var,scale=scale,call=call)
 
     } else {
       ans <- pooledBin.fit(x, m, n,
@@ -59,7 +59,7 @@
       #structure(ans,class="pooledBin",call=call)
       #if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
       #else group.var <- "Group"
-      ans <- structure(ans,class="pooledBin",call=call,group.names = "", group.var = "")
+      ans <- structure(ans,class="pooledBin",call=call,group.names = "", group.var = "", scale=scale)
     }
     ans
   }
@@ -149,7 +149,7 @@
                            scale=scale,alpha=alpha,tol=tol)
       #names(ans) <- "1"
       ans <- structure(ans, class = "pooledBin", group.names = names(ans),
-                       x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group, call = call)
+                       x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group, scale=scale,call = call)
 
     }
     #attributes(ans,"x.var") <- vars$x
@@ -273,7 +273,6 @@
     #if(is.null(args$digits)) digits <- 4
     #else digits <- args$digits
     scale <- x$scale
-    junk <- 1+3
     #p <- round(scale*x$p,digits)
     #lcl <- round(scale*x$lcl, digits)
     #ucl <- round(scale*x$ucl, digits)

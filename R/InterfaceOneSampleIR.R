@@ -46,7 +46,7 @@
    # names(ans) <- groups
    #   if(class(substitute(group)) == "name") vectors.var <- deparse(substitute(group))
    #   else vectors.var <- "Group"
-    attributes(ans) <- list(class = "pIRList", group.names = groups, group.var = group.var,call=call)
+    attributes(ans) <- list(class = "pIRList", group.names = groups, group.var = group.var,scale=scale,call=call)
 
     ans
 
@@ -62,7 +62,7 @@
     #structure(ans,class="pooledBin",call=call)
       if(class(substitute(group)) == "name") vectors.var <- deparse(substitute(group))
       else vectors.var <- "Group"
-    ans <- structure(ans,class="pIR",call=call)
+    ans <- structure(ans,class="pIR",scale=scale,call=call)
   }
   ans
 }
@@ -195,8 +195,6 @@
 
 "print.pIR" <- function(x, ...){
   args <- list(...)
-  if(is.null(args$digits)) digits <- 4
-  else digits <- args$digits
   scale <- x$scale
   #p <- round(scale*x$p,digits)
   #lcl <- round(scale*x$lcl, digits)
