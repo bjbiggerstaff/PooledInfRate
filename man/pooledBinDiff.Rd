@@ -41,9 +41,9 @@ pIRDiff(x, \dots)
  ci.method = c("skew-score", "bc-skew-score", "score", "lrt", "wald", "mir"),
  scale = 1, alpha = 0.05, tol = .Machine$double.eps^0.5, \dots)
 
-\method{print}{pooledBinDiff}(x, \dots, scale = attr(x, "scale"))
+\method{print}{pooledBinDiff}(x, \dots)
 
-\method{print}{pIRDiff}(x, \dots, scale = attr(x, "scale"))
+\method{print}{pIRDiff}(x, \dots)
 
 }
 

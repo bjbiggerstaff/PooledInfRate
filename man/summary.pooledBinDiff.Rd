@@ -14,8 +14,8 @@ The functions provide more detail underlying the results from pooledBinDiff/pIRD
 \method{summary}{pooledBinDiff}(object, scale = attr(x, "scale"), ...)
 \method{summary}{pIRDiff}(object, scale = attr(x, "scale"), ...)
 
-\method{print}{summary.pooledBinDiff}(x, \dots, scale=attr(x,"scale"))
-\method{print}{summary.pIRDiff}(x, \dots, scale=attr(x,"scale"))
+\method{print}{summary.pooledBinDiff}(x, \dots)
+\method{print}{summary.pIRDiff}(x, \dots)
 }
 
 
