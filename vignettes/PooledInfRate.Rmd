@@ -144,8 +144,7 @@ m.na <- c(10,50,25,10,10)
 
 pooledBin(x.na, m.na)
 
-# Fewer digits for easier reading
-print(summary(pooledBin(x.na,m.na)), digits = 2)
+summary(pooledBin(x.na,m.na))
 ```
 and this is also true using the <tt>formula</tt> method interface.
 
@@ -199,7 +198,7 @@ pooledBinDiff(x1,m1,x2,m2,n1,n2)
 
 pooledBinDiff(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 
-mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat)
+mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat, scale=1000) # scale for easier interpretation
 
 # Print fewer digits for easier reading 
 print(summary(mdiff.out), digits = 3) 
