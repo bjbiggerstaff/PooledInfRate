@@ -273,6 +273,7 @@
     #if(is.null(args$digits)) digits <- 4
     #else digits <- args$digits
     scale <- x$scale
+    junk <- 1+3
     #p <- round(scale*x$p,digits)
     #lcl <- round(scale*x$lcl, digits)
     #ucl <- round(scale*x$ucl, digits)
