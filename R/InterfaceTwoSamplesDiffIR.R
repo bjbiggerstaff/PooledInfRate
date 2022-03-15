@@ -169,9 +169,10 @@
 
 
 
-"print.pIRDiff" <-
-  function(x, ..., scale=attr(x,"scale")){
+"print.pIRDiff" <- function(x, ...){
     args <- list(...)
+    if(is.null(attr(x,"scale"))) scale <- 1
+    else scale <- attr(x,"scale")
     if(is.null(args$digits)) digits <- 4
     else digits <- args$digits
     nComparisons <- attr(x, "nComparisons")
@@ -259,8 +260,10 @@
 
 
 "print.summary.pIRDiff" <-
-  function(x, ..., scale=attr(x, "scale")){
+  function(x, ...){
     args <- list(...)
+    if(is.null(attr(x,"scale"))) scale <- 1
+    else scale <- attr(x,"scale")
     if(is.null(args$digits)) digits <- 4
     else digits <- args$digits
     cat("Estimation of Difference of Binomial Proportions for Pooled Data\n\n")

@@ -48,12 +48,12 @@ pIR(x, \dots)
  scale = 1, alpha = 0.05, tol = .Machine$double.eps^0.5, \dots)
 
 
-\method{print}{pooledBin}(x, \dots, scale=x$scale)
+\method{print}{pooledBin}(x, \dots)
 \method{print}{pooledBinList}(x, \dots)
 \method{plot}{pooledBin}(x, pch=16, refline=TRUE, printR2=TRUE,\dots)
 \method{plot}{pooledBinList}(x, pch=16, refline=TRUE, printR2=TRUE,layout=NULL,\dots)
 
-\method{print}{pIR}(x, \dots, scale=x$scale)
+\method{print}{pIR}(x, \dots)
 \method{print}{pIRList}(x, \dots)
 \method{plot}{pIR}(x, pch=16, refline=TRUE, printR2=TRUE,\dots)
 \method{plot}{pIRList}(x, pch=16, refline=TRUE, printR2=TRUE, layout=NULL,\dots)
