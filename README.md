@@ -32,7 +32,7 @@ devtools::install_git("https://git.cdc.gov/bkb5/PooledInfRate",build_vignettes =
 
 ## Example
 
-A couple of basic example with contrived data:
+A couple of basic examples with contrived data:
 
 ``` r
 library(PooledInfRate)
