@@ -126,7 +126,7 @@ pir.location.out <- pIR(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 summary(pir.location.out)
 
 pir.mosq.out <- pIR(Pos ~ PoolSize | Species, mosq.dat)
-summary(pir.mosq.out)
+print(summary(pir.mosq.out), digits=3)
 ```
 
 A plot method of the diagnostic tool described by @CheSwa1990 to evaluate the suitability of the binomial model is available.
