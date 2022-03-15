@@ -110,6 +110,9 @@ pooledBin(Pos ~ n(NumPools) +   PoolSize , ex2.dat)
 Specification of the grouping variable is as above:
 ```{r}
 pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
+
+# and use the (significant) 'digits' argument of print() to make for easier reading
+print(pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat), digits = 3)
 ```
 
 #### Summary and plot methods
@@ -197,7 +200,6 @@ pooledBinDiff(x1,m1,x2,m2,n1,n2)
 pooledBinDiff(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 
 mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat)
-summary(mdiff.out)
 
 # Print fewer digits for easier reading 
 print(summary(mdiff.out), digits = 3) 
