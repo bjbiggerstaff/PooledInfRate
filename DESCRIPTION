@@ -6,8 +6,7 @@ Version: 1.0
 Author@R: person("Brad J.","Biggerstaff", role=c("aut","cre"),email="bkb5@cdc.gov")
 Author: Brad J. Biggerstaff [aut, cre]
 Maintainer: "Brad J. Biggerstaff" <bkb5@cdc.gov>
-Imports: stats, utils
+Imports: stats, knitr, rmarkdown, utils
 VignetteBuilder: knitr 
-Suggests: knitr, rmarkdown 
 License: Apache License (>= 2.0) 
 Encoding: UTF-8

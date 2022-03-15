@@ -2,7 +2,12 @@
 title: "PooledInfRate"
 author: "Brad J. Biggerstaff"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+#  pdf_document:
+#    highlight: yes
+#    number_sections: no
 vignette: >
   %\VignetteIndexEntry{PooledInfRate}
   %\VignetteEngine{knitr::rmarkdown}
