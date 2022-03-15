@@ -5,11 +5,6 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
-  pdf_document:
-    highlight: yes 
-    number_sections: no 
-    includes:
-        in_header: "wrap-code.tex"
 vignette: >
   %\VignetteIndexEntry{PooledInfRate}
   %\VignetteEngine{knitr::rmarkdown}
