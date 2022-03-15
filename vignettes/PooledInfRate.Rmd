@@ -145,7 +145,7 @@ m.na <- c(10,50,25,10,10)
 pooledBin(x.na, m.na)
 
 # Fewer digits for easier reading
-print(summary(pooledBin(x.na,m.na)), digits = 4)
+print(summary(pooledBin(x.na,m.na)), digits = 2)
 ```
 and this is also true using the <tt>formula</tt> method interface.
 
