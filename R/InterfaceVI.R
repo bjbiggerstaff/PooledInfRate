@@ -740,7 +740,7 @@
   cat(paste0("Use tested pools' pool sizes in abundance estimate : ",attr(x$vi.obj,"n.use.traps"),"\n"))
   cat("\n")
 
-  print(x$vi.obj) # print the VIs by group
+  print(x$vi.obj,...) # print the VIs by group
 
   cat("\n")
   cat("Detail by group and vector:\n\n")

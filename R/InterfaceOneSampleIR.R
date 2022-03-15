@@ -250,7 +250,7 @@
            "wald" = x$CIEstName <- "Wald",
            "mir" = x$CIEstName <- "Minimum Infection Rate"
     )
-    structure(x,class="summary.pooledBin",call=attr(x,"call"))
+    structure(x,class="summary.pooledBin",call=attr(x,"call"),scale=x$scale)
   }
 
 "print.summary.pIR" <-

@@ -308,8 +308,8 @@
     x <- object
     args <- list(...)
     scale <- x$scale
-    if(is.null(args$digits)) digits <- 4
-    else digits <- args$digits
+    #if(is.null(args$digits)) digits <- 4
+    #else digits <- args$digits
     switch(x$pt.method,
            "firth" = x$PtEstName <- "Firth's Correction",
            "gart" = x$PtEstName <- "Gart's Correction",
@@ -325,7 +325,7 @@
            "wald" = x$CIEstName <- "Wald",
            "mir" = x$CIEstName <- "Minimum Infection Rate"
     )
-    structure(x,class="summary.pooledBin",call=attr(object,"call"))
+    structure(x,class="summary.pooledBin",call=attr(object,"call"),scale=x$scale)
   }
 
 "print.summary.pooledBin" <-
