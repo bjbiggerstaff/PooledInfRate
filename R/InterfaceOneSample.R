@@ -270,13 +270,9 @@
 
 "print.pooledBin" <- function(x, ...){
     args <- list(...)
-    if(is.null(x$scale)){
-      scale <- 1
-    } else {
-      scale <- x$scale
-    }
     if(is.null(args$digits)) digits <- 4
     else digits <- args$digits
+    scale <- x$scale
     #p <- round(scale*x$p,digits)
     #lcl <- round(scale*x$lcl, digits)
     #ucl <- round(scale*x$ucl, digits)
@@ -335,11 +331,7 @@
 "print.summary.pooledBin" <-
   function(x, ...){
     args <- list(...)
-    if(is.null(x$scale)){
-      scale <- 1
-    } else {
-      scale <- x$scale
-    }
+    scale <- x$scale
     if(is.null(args$digits)) digits <- 4
     else digits <- args$digits
     cat("Estimation of Binomial Proportion for Pooled Data\n\n")
