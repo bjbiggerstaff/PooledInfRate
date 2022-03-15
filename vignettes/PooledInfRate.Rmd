@@ -2,7 +2,14 @@
 title: "PooledInfRate"
 author: "Brad J. Biggerstaff"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+  pdf_document:
+    highlight: yes 
+    number_sections: no 
+    includes:
+        in_header: "wrap-code.tex"
 vignette: >
   %\VignetteIndexEntry{PooledInfRate}
   %\VignetteEngine{knitr::rmarkdown}
@@ -43,13 +50,17 @@ ex1.dat
 ```
 and
 ```{r}
-ex2.dat <- data.frame(Pos = c(2,1,0,1), PoolSize = c(50,25,10,5), NumPools = c(10,10,5,2), Location = c("A","A","B","B"))
+ex2.dat <- data.frame(Pos = c(2,1,0,1), 
+                      PoolSize = c(50,25,10,5), 
+                      NumPools = c(10,10,5,2), 
+                      Location = c("A","A","B","B"))
 ex2.dat
 ```
 and if there are different groups, say <tt>Species</tt>, 
 ```{r}
 mosq.dat <- data.frame(Zone = c(1,1,2,2, 1,1,1,2,2, 1,1,2),
-                       Species = rep(c("Culex pipiens","Culex tarsalis", "Culex quinquefaciatus"), c(4,5,3)),
+                       Species = rep(c("Culex pipiens","Culex tarsalis", "Culex quinquefaciatus"), 
+                                     c(4,5,3)),
                        Pos = c(1,0,0,1, 1,0,1,0,0, 0,1,0),
                        PoolSize = c(100,50,25,5, 200,100,50,25,10, 25,10,5),
                        Nights = c(5,5,3,3,5,5,5,3,3,5,5,3))
@@ -135,7 +146,8 @@ m.na <- c(10,50,25,10,10)
 
 pooledBin(x.na, m.na)
 
-summary(pooledBin(x.na,m.na))
+# Fewer digits for easier reading
+print(summary(pooledBin(x.na,m.na)), digits = 4)
 ```
 and this is also true using the <tt>formula</tt> method interface.
 
@@ -149,7 +161,8 @@ As described above, there are several point and CI methods available, and the ch
 pIR(Pos ~ PoolSize, mosq.dat, pt.method = "firth", ci.method = "skew-score") # the defaults 
 pIR(Pos ~ PoolSize, mosq.dat, pt.method = "gart", ci.method = "score") 
 pIR(Pos ~ PoolSize, mosq.dat, pt.method = "mle", ci.method = "wald") 
-pIR(Pos ~ PoolSize, mosq.dat, pt.method = "mir", ci.method = "mir") # specification of "mir" for either sets the other to "mir"
+# specification of "mir" for either sets the other to "mir"
+pIR(Pos ~ PoolSize, mosq.dat, pt.method = "mir", ci.method = "mir") 
 ```
 
 Also, note that when all pool sizes are <tt>1</tt>, then there is no pooling, so the standard Wilson score interval is returned, and <tt>pt.method</tt> is set to <tt>"mle"</tt> and <tt>ci.method</tt> is set to "score" in this case.
@@ -190,6 +203,9 @@ pooledBinDiff(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 
 mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat)
 summary(mdiff.out)
+
+# Print fewer digits for easier reading 
+print(summary(mdiff.out), digits = 3) 
 ```
 #### Missing data
 
@@ -211,7 +227,7 @@ The most straightforward data situation is when all individuals in the collectio
 
 For the default interface, a <tt>vector</tt> parameter is used, so using the <tt>mosq.dat</tt> example data set above,
 ```{r}
-vi.out <- with(mosq.dat, vectorIndex(Pos,PoolSize,vector=Species)) # or VI(Pos,PoolSize,vector=Species)
+vi.out <- with(mosq.dat, vectorIndex(Pos,PoolSize,vector=Species)) # or use VI()
 vi.out
 ```
 and there is a <tt>summary</tt> method available to provide detail:
@@ -244,12 +260,18 @@ It may be that field collections used for computing the measure of population si
 
 As an example data set, the document [_West Nile Virus in the United States: Guidelines for Surveillance, Prevention, and Control_](https://www.cdc.gov/westnile/resources/pdfs/wnvguidelines.pdf) of the US Centers for Disease Control and Prevention, Division of Vector-Borne Diseases, contains this example data set in Appendix 2 (written here in aggregated form):
 ```{r}
-pools.dat <- data.frame(Species=c("Cx. tarsalis","Cx. pipiens"),Pos=c(1,1),PoolSize=c(50,50),NumPools=c(6,5))
+pools.dat <- data.frame(Species=c("Cx. tarsalis","Cx. pipiens"),
+                        Pos=c(1,1),
+                        PoolSize=c(50,50),
+                        NumPools=c(6,5))
 pools.dat
 ```
 In addition to the pool testing data, the total number of _Cx. tarsalis_ caught for 6 traps was 442, and the total number of _Cx. pipiens_ caught for 6 traps was 233.  To include this information in the <tt>pools.dat</tt> data set, (1) enter missing values (<tt>NA</tt>) for the "number positive" variable (<tt>x</tt>); (2) treat the "pool size" variable (<tt>m</tt>) as the collection count; and augment "number of pools" variable (<tt>n</tt>) as <tt>1</tt>.
 ```{r}
-traps.dat <- data.frame(Species = c("Cx. tarsalis","Cx. pipiens"),Pos = c(NA,NA),PoolSize=c(442, 233),NumPools=c(1,1)) # note NumPools should be 1 for each entry
+traps.dat <- data.frame(Species = c("Cx. tarsalis","Cx. pipiens"),
+                        Pos = c(NA,NA),
+                        PoolSize=c(442, 233),
+                        NumPools=c(1,1)) # note NumPools should be 1 for each entry
 vi.dat <- rbind(pools.dat, traps.dat)
 vi.dat
 
@@ -258,11 +280,14 @@ summary(VI(Pos ~ PoolSize + n(NumPools) / Species, vi.dat, n.use.traps = FALSE, 
 ```
 Finally, to account for trapping effort, recall that these vector mosquito counts are from 6 traps (assumed to be for 1 night each).  Augment the <tt>vi.dat</tt> data set as
 ```{r}
-vi.dat$TrapNights <- c(1,1,6,6) # put 1s in for the pool data for later; use values for trap nights in application
+# put 1s in for the pool data for later; use values for trap nights in application
+vi.dat$TrapNights <- c(1,1,6,6) 
 vi.dat
 
-VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = FALSE, n.use.na = TRUE)
-summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = FALSE, n.use.na = TRUE))
+VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, 
+                                     n.use.traps = FALSE, n.use.na = TRUE)
+summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, 
+                                     n.use.traps = FALSE, n.use.na = TRUE))
 ```
 The <tt>Avg N</tt> values reported in the <tt>summary</tt> result match the CDC result.  To match the _VI_ result exactly, note that the CDC computation used the MIR as the estimate of the infection rate, so compute this using
 ```{r}
@@ -276,8 +301,10 @@ Finally, if the individuals in the pools are not also counted in the "not-tested
 ```{r}
 # not trying to match the CDC guidelines report here, since in the example more individuals are
 # included in the population size (mosquito density) measure
-VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = TRUE, n.use.na = TRUE)
-summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, n.use.traps = TRUE, n.use.na = TRUE))
+VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, 
+                                     n.use.traps = TRUE, n.use.na = TRUE)
+summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, 
+                                     n.use.traps = TRUE, n.use.na = TRUE))
 ```
 
 ###### Options
