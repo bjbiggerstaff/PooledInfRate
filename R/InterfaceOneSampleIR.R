@@ -256,10 +256,10 @@
 "print.summary.pIR" <-
   function(x, ...){
     args <- list(...)
-    if(is.null(args$digits)) digits <- 4
-    else digits <- args$digits
+    #if(is.null(args$digits)) digits <- 4
+    #else digits <- args$digits
     cat("Estimation of Binomial Proportion for Pooled Data\n\n")
-    print.pooledBin(x, scale=scale, ...)
+    print.pooledBin(x, ...)
     cat("\n")
     cat(paste0("\nCall: ", deparse(attr(x,"call"),width.cutoff = 100),"\n\n"))
     cat(paste("Point estimator:",x$PtEstName,"\n"))
