@@ -408,10 +408,10 @@
   function(x,pch=16,refline=TRUE,printR2=TRUE,...){
     # reference: Chen & Swallow
     if(all(x$n==1)) {
-      xmn <- as.list(by(x$x,x$m,function(x) c(sum(x),length(x))))
+      xmn <- as.list(by(x$x,x$m,function(u) c(sum(u),length(u))))
       m <- as.numeric(names(xmn))
-      xx <- sapply(xmn,function(x) x[1])
-      n <- sapply(xmn,function(x) x[2])
+      xx <- sapply(xmn,function(u) u[1])
+      n <- sapply(xmn,function(u) u[2])
     } else {
       xx <- x$x
       m <- x$m

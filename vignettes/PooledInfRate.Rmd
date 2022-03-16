@@ -128,7 +128,7 @@ print(summary(pir.mosq.out), digits=3)
 ```
 
 A plot method of the diagnostic tool described by @CheSwa1990 to evaluate the suitability of the binomial model is available.
-```{r}
+```{r fig.cap="Binomial model diagnostic plot of Chen and Swallow (1990)"}
 plot(pir.combined.out)
 ```
 and this also works when there are groups (though adjustment of the <tt>layout</tt> parameter may be required).
@@ -198,7 +198,7 @@ pooledBinDiff(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 
 mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat, scale=1000) # scale for easier interpretation
 
-# Print fewer digits for easier reading 
+## Print fewer digits for easier reading 
 print(summary(mdiff.out), digits = 3) 
 ```
 #### Missing data
