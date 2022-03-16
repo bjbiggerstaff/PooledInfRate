@@ -8,6 +8,8 @@
 ^LICENSE\.Rmd$
 ^LICENSE\.md$
 ^LICENSE$
+PIR.R
 PIR.png
 wrap-code.tex
 PooledInfRate.pdf
+
