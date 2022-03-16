@@ -325,11 +325,12 @@ img <- image_trim(img)
 
 
 # CDC Colors
+#s_width=0.9, s_height=1.25
 plot(sticker(img,package="PooledInfRate",
-             s_width=0.9,s_height=1.25,
+             s_width=1.2,s_height=1.2,
              h_color=cdc.blue,h_fill="white",
              p_size=25,p_y=1.5, p_color=cdc.blue,
-             s_x=1,s_y=0.8,
+             s_x=1,s_y=0.75,
              h_size=1.2, # 1.2 is default
              filename="PIRFinal.png",
              asp = TRUE,
