@@ -81,7 +81,7 @@ pIR(x, \dots)
 
   \item{tol}{accuracy required for iterations in internal functions}
 
-  \item{\dots}{future arguements}
+  \item{\dots}{future arguments}
 
   \item{pch}{lotting character}
 
