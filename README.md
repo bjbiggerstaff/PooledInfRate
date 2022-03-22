@@ -6,7 +6,7 @@
 PooledInfRate: Estimation from pooled or group testing.
 
 The website for this project is
-<https://git.cdc.gov/bkb5/pooledinfrate.git/>.
+<https://github.com/bjbiggerstaff/pooledinfrate.git/>.
 
 PooledInfRate is an [R](www.r-project.org) package provides functions to
 estimate proportions from pooled or group testing data. There is also
@@ -24,7 +24,7 @@ You can install PooledInfRate from GitLab:
 # This will build on the fly, so you need *RTools* (available from CRAN)
 Sys.setenv(R_QPDF="true") # to build the vignette during the package build
 library(devtools) # need to install this if you do not have it
-devtools::install_git("https://git.cdc.gov/bkb5/PooledInfRate",build_vignettes = TRUE)
+devtools::install_git("https://github.com/bjbiggerstaff/PooledInfRate",build_vignettes = TRUE)
 ```
 
 ## Example
