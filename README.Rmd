@@ -27,7 +27,7 @@ PooledInfRate is an [R](www.r-project.org) package provides functions to estimat
 You can install PooledInfRate from GitLab:
 
 ``` r
-# To install from GitLab CDC
+# To install from GitHub
 # This will build on the fly, so you need *RTools* (available from CRAN)
 Sys.setenv(R_QPDF="true") # to build the vignette during the package build
 library(devtools) # need to install this if you do not have it

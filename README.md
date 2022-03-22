@@ -20,7 +20,7 @@ the amount of West Nile virus in a population of vector mosquitoes.
 You can install PooledInfRate from GitLab:
 
 ``` r
-# To install from GitLab CDC
+# To install from GitHub
 # This will build on the fly, so you need *RTools* (available from CRAN)
 Sys.setenv(R_QPDF="true") # to build the vignette during the package build
 library(devtools) # need to install this if you do not have it
