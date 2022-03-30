@@ -118,7 +118,7 @@ increase collaboration and collaborative potential. All government
 records will be published through the [CDC web
 site](http://www.cdc.gov).
 
-## DISCLAIMER
+## Disclaimer
 
 This package/application is provided without warranty of any kind.
 
