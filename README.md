@@ -52,26 +52,6 @@ pIR(Pos ~ PoolSize + n(NumPools), data = pool.dat) # pIR is just a short name fo
 See the package vignette for detailed examples of the methods and user
 interface, along with references for the methods.
 
-## Public Domain
-
-This repository constitutes a work of the United States Government and
-is not subject to domestic copyright protection under 17 USC § 105. This
-repository is in the public domain within the United States, and
-copyright and related rights in the work worldwide are waived through
-the [CC0 1.0 Universal public domain
-dedication](https://creativecommons.org/publicdomain/zero/1.0/). All
-contributions to this repository will be released under the CC0
-dedication. By submitting a pull request you are agreeing to comply with
-this waiver of copyright interest.
-
-## DISCLAIMER
-
-This package/application is provided without warranty of any kind.
-
-While every effort has been made to ensure that that routines provide
-correct and accurate results, all responsibility for the use of the
-results belongs to the user.
-
 ## Public Domain Standard Notice
 
 This repository constitutes a work of the United States Government and
@@ -137,3 +117,11 @@ This repository is not a source of government records, but is a copy to
 increase collaboration and collaborative potential. All government
 records will be published through the [CDC web
 site](http://www.cdc.gov).
+
+## DISCLAIMER
+
+This package/application is provided without warranty of any kind.
+
+While every effort has been made to ensure that that routines provide
+correct and accurate results, all responsibility for the use of the
+results belongs to the user.
