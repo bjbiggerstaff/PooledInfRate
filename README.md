@@ -28,7 +28,7 @@ devtools::install_github("https://github.com/CDCgov/PooledInfRate",build_vignett
 ```
 
 For those on Microsoft Windows, the binary build is available in the
-file list as PooledInfRate_0.1.0.zip, and you can download and install
+file list as PooledInfRate_1.0.zip, and you can download and install
 that instead of the build-install.
 
 ## Example
