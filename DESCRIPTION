@@ -9,4 +9,5 @@ Maintainer: "Brad J. Biggerstaff" <bkb5@cdc.gov>
 Imports: stats, knitr, rmarkdown, utils
 VignetteBuilder: knitr 
 License: Apache License (>= 2.0) 
+URL: https://github.com/CDCgov/PooledInfRate
 Encoding: UTF-8
