@@ -44,7 +44,7 @@
                       Scale = rep(1,  nGroups))
     if (!is.null(attr(ans.lst, "group.var")))
       names(ans)[1] <- attr(ans.lst, "group.var")
-    for (i in 1:n) out[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
+    for (i in 1:n) ans[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
     if (all(ans$Scale == 1)) ans$Scale <- NULL
 
 
