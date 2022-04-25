@@ -19,10 +19,20 @@
     m1 <- m1[xmn1.nomiss]
     n1 <- n1[xmn1.nomiss]
 
+    m1n1.nozero <- (m1>0 & n1>0)
+    x1 <- x1[m1n1.nozero]
+    m1 <- m1[m1n1.nozero]
+    n1 <- n1[m1n1.nozero]
+
     xmn2.nomiss <- (!is.na(x2) & !is.na(m2) & !is.na(n2))
     x2 <- x2[xmn2.nomiss]
     m2 <- m2[xmn2.nomiss]
     n2 <- n2[xmn2.nomiss]
+
+    m2n2.nozero <- (m2>0 & n2>0)
+    x2 <- x2[m2n2.nozero]
+    m2 <- m2[m2n2.nozero]
+    n2 <- n2[m2n2.nozero]
 
     call <- match.call()
     pt.method <- match.arg(pt.method)
@@ -57,8 +67,17 @@
     if(is.na(d)) ci.d <- c(NA,NA)
     ans.grp <- list(pooledBin.default(x1,m1,n1,pt.method=pt.method,ci.method=ci.method,scale=scale,alpha=alpha,tol=tol),
                     pooledBin.default(x2,m2,n2,pt.method=pt.method,ci.method=ci.method,scale=scale,alpha=alpha,tol=tol))
-    structure(list(d=d,lcl=ci.d[1],ucl=ci.d[2],pt.method=pt.method,ci.method=ci.method,alpha=alpha,
-                   scale=scale,x1=x1,m1=m1,n1=n1,x2=x2,m2=m2,n2=n2,call=call),class="pIRDiff",
+
+    ans.lst <- list(d=d,lcl=ci.d[1],ucl=ci.d[2],pt.method=pt.method,ci.method=ci.method,alpha=alpha,
+                    scale=scale,x1=x1,m1=m1,n1=n1,x2=x2,m2=m2,n2=n2,call=call)
+
+    ans <- data.frame(Diff = d,
+                      Lower = ci.d[1],
+                      Upper = ci.d[2],
+                      Scale = scale)
+    if(scale == 1) ans$Scale <- NULL
+
+    structure(ans, class="pIRDiff",fullList = ans.lst,
               pt.method=pt.method,ci.method=ci.method,alpha=alpha,nComparisons=1,
               comparisonNames = paste0(group.names,collapse=" - "),grp.pooledBin = ans.grp,
                      group.var="Group",group.names=group.names,scale=scale,call=call)
@@ -122,6 +141,12 @@
       nGroups <- length(groups)
     }
 
+    mn.pos <- (m>0 & n>0)
+    x <- x[mn.pos]
+    m <- m[mn.pos]
+    n <- n[mn.pos]
+    group <- group[mn.pos]
+
     groups <- unique(group)
     nGroups <- length(groups)
     if(nGroups < 2) stop("Must have at least 2 groups for computation of group differences.")
@@ -159,7 +184,15 @@
     }
     names(ans) <- comparisonNames
     if(length(ans) == 1) ans <- ans[[1]]
-    structure(ans, class = "pIRDiff",pt.method=pt.method,ci.method=ci.method,alpha=alpha,
+
+    ans <- dat.frame(Comparison = comparisonNames,
+                     Diff = scale * sapply(ans.lst, function(x) x$d),
+                     Lower = scale * sapply(ans.lst, function(x) x$lcl),
+                     Upper = scale * sapply(ans.lst, function(x) x$ucl),
+                     Scale = scale)
+    if(scale == 1) ans$Scale <- NULL
+
+    structure(ans, class = "pIRDiff",fullList = ans.lst, pt.method=pt.method,ci.method=ci.method,alpha=alpha,
               scale=scale, nComparisons = nComparisons, comparisonNames = comparisonNames, grp.pooledBin = ans.grp, group.var = vars$group,
               group.names=groups, call=call)
 
@@ -169,55 +202,103 @@
 
 
 
-"print.pIRDiff" <- function(x, ...){
-    args <- list(...)
-    if(is.null(attr(x,"scale"))) scale <- 1
-    else scale <- attr(x,"scale")
-    if(is.null(args$digits)) digits <- 4
-    else digits <- args$digits
-    nComparisons <- attr(x, "nComparisons")
-    if(is.null(nComparisons)) nComparisons <- 1
-    comparisonNames <- attr(x,"comparisonNames")
-    if(nComparisons == 1){
-      if(scale != x$scale) scale <- x$scale
-      #d <- round(scale*x$d,digits)
-      #lcl <- round(scale*x$lcl, digits)
-      #ucl <- round(scale*x$ucl, digits)
-      d <- scale*x$d
-      lcl <- scale*x$lcl
-      ucl <- scale*x$ucl
-      mat <- matrix(c(d,lcl,ucl,scale),nrow=1)[,,drop=FALSE] # really to match Hmisc's binconf()
-      dimnames(mat) <- list(c(""),c("Diff","Lower","Upper","Scale"))
-      mat <- as.data.frame(mat)
-      mat$Comparison <- comparisonNames
-      mat <- mat[,c(5,1:4)]
-      if(scale == 1) mat <- mat[,-5]
-      print(mat,...)
-    } else {
-      if(scale != x[[1]]$scale) scale <- x[[1]]$scale
-      #d <- round(scale*sapply(x,function(x) x$d),digits)
-      #lcl <- round(scale*sapply(x,function(x) x$lcl), digits)
-      #ucl <- round(scale*sapply(x,function(x) x$ucl), digits)
-      d <- scale*sapply(x,function(x) x$d)
-      lcl <- scale*sapply(x,function(x) x$lcl)
-      ucl <- scale*sapply(x,function(x) x$ucl)
-      mat <- cbind(d,lcl,ucl,scale)
-      #mat <- matrix(c(d,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
-      dimnames(mat) <- list(rep(c(""),nComparisons),c("Diff","Lower","Upper","Scale"))
-      mat <- as.data.frame(mat)
-      mat$Comparison <- comparisonNames
-      mat <- mat[,c(5,1:4)]
-      if(scale == 1) mat <- mat[,-5]
-      rownames(mat) <- NULL
-      print(mat,...)
-    }
+# "print.pIRDiff" <- function(x, ...){
+#     args <- list(...)
+#     if(is.null(attr(x,"scale"))) scale <- 1
+#     else scale <- attr(x,"scale")
+#     if(is.null(args$digits)) digits <- 4
+#     else digits <- args$digits
+#     nComparisons <- attr(x, "nComparisons")
+#     if(is.null(nComparisons)) nComparisons <- 1
+#     comparisonNames <- attr(x,"comparisonNames")
+#     if(nComparisons == 1){
+#       if(scale != x$scale) scale <- x$scale
+#       #d <- round(scale*x$d,digits)
+#       #lcl <- round(scale*x$lcl, digits)
+#       #ucl <- round(scale*x$ucl, digits)
+#       d <- scale*x$d
+#       lcl <- scale*x$lcl
+#       ucl <- scale*x$ucl
+#       mat <- matrix(c(d,lcl,ucl,scale),nrow=1)[,,drop=FALSE] # really to match Hmisc's binconf()
+#       dimnames(mat) <- list(c(""),c("Diff","Lower","Upper","Scale"))
+#       mat <- as.data.frame(mat)
+#       mat$Comparison <- comparisonNames
+#       mat <- mat[,c(5,1:4)]
+#       if(scale == 1) mat <- mat[,-5]
+#       print(mat,...)
+#     } else {
+#       if(scale != x[[1]]$scale) scale <- x[[1]]$scale
+#       #d <- round(scale*sapply(x,function(x) x$d),digits)
+#       #lcl <- round(scale*sapply(x,function(x) x$lcl), digits)
+#       #ucl <- round(scale*sapply(x,function(x) x$ucl), digits)
+#       d <- scale*sapply(x,function(x) x$d)
+#       lcl <- scale*sapply(x,function(x) x$lcl)
+#       ucl <- scale*sapply(x,function(x) x$ucl)
+#       mat <- cbind(d,lcl,ucl,scale)
+#       #mat <- matrix(c(d,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
+#       dimnames(mat) <- list(rep(c(""),nComparisons),c("Diff","Lower","Upper","Scale"))
+#       mat <- as.data.frame(mat)
+#       mat$Comparison <- comparisonNames
+#       mat <- mat[,c(5,1:4)]
+#       if(scale == 1) mat <- mat[,-5]
+#       rownames(mat) <- NULL
+#       print(mat,...)
+#     }
+#
+#     invisible(x)
+#   }
 
-    invisible(x)
-  }
+
+"print.pIRDiff" <- function(x, ...){
+  x
+}
+
+# "as.data.frame.pIRDiff" <- function(x, row.names = NULL, optional = FALSE, ...){
+#   args <- list(...)
+#   if(is.null(attr(x,"scale"))) scale <- 1
+#   else scale <- attr(x,"scale")
+#   if(is.null(args$digits)) digits <- 4
+#   else digits <- args$digits
+#   nComparisons <- attr(x, "nComparisons")
+#   if(is.null(nComparisons)) nComparisons <- 1
+#   comparisonNames <- attr(x,"comparisonNames")
+#   if(nComparisons == 1){
+#     if(scale != x$scale) scale <- x$scale
+#     #d <- round(scale*x$d,digits)
+#     #lcl <- round(scale*x$lcl, digits)
+#     #ucl <- round(scale*x$ucl, digits)
+#     d <- scale*x$d
+#     lcl <- scale*x$lcl
+#     ucl <- scale*x$ucl
+#     mat <- matrix(c(d,lcl,ucl,scale),nrow=1)[,,drop=FALSE] # really to match Hmisc's binconf()
+#     dimnames(mat) <- list(c(""),c("Diff","Lower","Upper","Scale"))
+#     mat <- as.data.frame(mat)
+#     mat$Comparison <- comparisonNames
+#     mat <- mat[,c(5,1:4)]
+#     if(scale == 1) mat <- mat[,-5]
+#   } else {
+#     if(scale != x[[1]]$scale) scale <- x[[1]]$scale
+#     #d <- round(scale*sapply(x,function(x) x$d),digits)
+#     #lcl <- round(scale*sapply(x,function(x) x$lcl), digits)
+#     #ucl <- round(scale*sapply(x,function(x) x$ucl), digits)
+#     d <- scale*sapply(x,function(x) x$d)
+#     lcl <- scale*sapply(x,function(x) x$lcl)
+#     ucl <- scale*sapply(x,function(x) x$ucl)
+#     mat <- cbind(d,lcl,ucl,scale)
+#     #mat <- matrix(c(d,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
+#     dimnames(mat) <- list(rep(c(""),nComparisons),c("Diff","Lower","Upper","Scale"))
+#     mat <- as.data.frame(mat)
+#     mat$Comparison <- comparisonNames
+#     mat <- mat[,c(5,1:4)]
+#     if(scale == 1) mat <- mat[,-5]
+#     rownames(mat) <- NULL
+#   }
+#   as.data.frame(mat)
+# }
 
 "summary.pIRDiff" <-
   function(object, scale=attr(x,"scale"), ...){
-    x <- object
+    x <- attr(object,"fullList")
     args <- list(...)
     if(is.null(args$digits)) digits <- 4
     else digits <- args$digits

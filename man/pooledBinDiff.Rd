@@ -7,6 +7,8 @@
 \alias{pIRDiff.formula}
 \alias{print.pooledBinDiff}
 \alias{print.pIRDiff}
+\alias{as.data.frame.pooledBinDiff}
+\alias{as.data.frame.pIRDiff}
 
 \title{
 Confidence intervals for the difference of proportions
@@ -42,8 +44,11 @@ pIRDiff(x, \dots)
  scale = 1, alpha = 0.05, tol = .Machine$double.eps^0.5, \dots)
 
 \method{print}{pooledBinDiff}(x, \dots)
+\method{as.data.frame}{pooledBinDiff}(x, row.names = NULL, optional = FALSE, \dots)
 
 \method{print}{pIRDiff}(x, \dots)
+\method{as.data.frame}{pIRDiff}(x, row.names = NULL, optional = FALSE, \dots)
+
 
 }
 
@@ -74,6 +79,10 @@ pIRDiff(x, \dots)
   \item{alpha}{ a single numeric, specifying the type-I-error level}
 
   \item{tol}{accuracy required for iterations in internal functions}
+
+  \item{row.names}{\code{NULL} or a character vector giving the row names for the data frame. Missing values are not allowed.}
+
+  \item{optional}{logical. If \code{TRUE}, setting row names and converting column names (to syntactic names: see make.names) is optional. Note that all of R's base package \code{as.data.frame()} methods use optional only for column names treatment, basically with the meaning of \code{data.frame(*, check.names = !optional)}.}
 
   \item{\dots}{future arguments}
 

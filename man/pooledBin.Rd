@@ -13,6 +13,10 @@
 \alias{plot.pIR}
 \alias{plot.pooledBinList}
 \alias{plot.pIRList}
+\alias{as.data.frame.pooledBin}
+\alias{as.data.frame.pooledBinList}
+\alias{as.data.frame.pIR}
+\alias{as.data.frame.pIRList}
 
 \title{
 Estimates for a proportion from pooled/group testing
@@ -52,11 +56,17 @@ pIR(x, \dots)
 \method{print}{pooledBinList}(x, \dots)
 \method{plot}{pooledBin}(x, pch=16, refline=TRUE, printR2=TRUE,\dots)
 \method{plot}{pooledBinList}(x, pch=16, refline=TRUE, printR2=TRUE,layout=NULL,\dots)
+\method{as.data.frame}{pooledBin}(x, row.names = NULL, optional = FALSE, \dots)
+\method{as.data.frame}{pooledBinList}(x, row.names = NULL, optional = FALSE, \dots)
 
 \method{print}{pIR}(x, \dots)
 \method{print}{pIRList}(x, \dots)
 \method{plot}{pIR}(x, pch=16, refline=TRUE, printR2=TRUE,\dots)
 \method{plot}{pIRList}(x, pch=16, refline=TRUE, printR2=TRUE, layout=NULL,\dots)
+\method{as.data.frame}{pIR}(x, row.names = NULL, optional = FALSE, \dots)
+\method{as.data.frame}{pIRList}(x, row.names = NULL, optional = FALSE, \dots)
+
+
 
 }
 
@@ -90,6 +100,10 @@ pIR(x, \dots)
   \item{printR2}{include printing of the \eqn{R^2} value on the graphic}
 
   \item{layout}{2-element, \code{c(row, col)}, numeric vector for the layout of the plots for multiple groups.  Default is NULL, for which a layout is computed}
+
+  \item{row.names}{\code{NULL} or a character vector giving the row names for the data frame. Missing values are not allowed.}
+
+  \item{optional}{logical. If \code{TRUE}, setting row names and converting column names (to syntactic names: see make.names) is optional. Note that all of R's base package \code{as.data.frame()} methods use optional only for column names treatment, basically with the meaning of \code{data.frame(*, check.names = !optional)}.}
 
 }
 

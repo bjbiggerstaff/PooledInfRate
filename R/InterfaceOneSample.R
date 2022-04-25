@@ -15,6 +15,11 @@
     m <- m[xmn.nomiss]
     n <- n[xmn.nomiss]
 
+    mn.nozero <- (m>0 & n>0)
+    x <- x[mn.nozero]
+    m <- m[mn.nozero]
+    n <- n[mn.nozero]
+
     if(!missing(group)){
     xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n) & !is.na(group))
     group <- group[xmng.nomiss]
@@ -45,7 +50,19 @@
 
       #attributes(ans) <- list(class = "pooledBinList", group.names = groups, group.var = group.var,call=call)
 
-      ans <- structure(ans, class = "pooledBinList", group.names = groups, group.var = group.var,scale=scale,call=call)
+      #
+      ans.lst <- ans
+      ans <- data.frame(Group = attr(x, "group.names"),
+                        PointEst = rep(0,  nGroups),
+                        Lower = rep(0, nGroups),
+                        Upper = rep(0, nGroups),
+                        Scale = rep(1,  nGroups))
+      if (!is.null(attr(ans.lst, "group.var")))
+        names(ans)[1] <- attr(ans.lst, "group.var")
+      for (i in 1:n) out[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
+      if (all(ans$Scale == 1)) ans$Scale <- NULL
+print(ans)
+      ans <- structure(ans, class = "pooledBinList", fullList = ans.lst, group.names = groups, group.var = group.var,scale=scale,call=call)
 
     } else {
       ans <- pooledBin.fit(x, m, n,
@@ -59,7 +76,13 @@
       #structure(ans,class="pooledBin",call=call)
       #if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
       #else group.var <- "Group"
-      ans <- structure(ans,class="pooledBin",call=call,group.names = "", group.var = "", scale=scale)
+      ans.lst <- ans
+      ans <- data.frame(P=scale*ans.lst$p,
+                        Lower = scale*ans.lst$lcl,
+                        Upper = scale*ans.lst$ucl,
+                        Scale = scale) # really to match Hmisc's binconf()
+      if(scale == 1) ans$Scale <- NULL
+      ans <- structure(ans,class="pooledBin",fullList = ans.lst,call=call,group.names = "", group.var = "", scale=scale)
     }
     ans
   }
@@ -115,14 +138,29 @@
 
       # restrict to data with no missing x, m, n, group
     if(missing(data)){
+      mn.nozero <- (m>0 & n>0)
+      x <- x[mn.nozero]
+      m <- m[mn.nozero]
+      n <- n[mn.nozero]
+
       xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n) & !is.na(group))
       x <- x[xmng.nomiss]
       m <- m[xmng.nomiss]
       n <- n[xmng.nomiss]
+
+
       group <- group[xmng.nomiss]
       groups <- unique(group)
       nGroups <- length(groups)
     }
+
+    mn.nozero <- (m>0 & n>0)
+    x <- x[mn.nozero]
+    m <- m[mn.nozero]
+    n <- n[mn.nozero]
+    group <- group[mn.nozero]
+    groups <- unique(group)
+    nGroups <- length(groups)
 
     if(nGroups > 1){
       ans <- vector(mode="list",length=nGroups)
@@ -139,17 +177,37 @@
 
       }
       names(ans) <- groups
-      ans <- structure(ans, class = "pooledBinList", group.names = groups,
-                       x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group,
-                       call = call)
+      ans.lst <- ans
+      ans <- data.frame(Group = attr(x, "group.names"),
+                        PointEst = rep(0,  nGroups),
+                        Lower = rep(0, nGroups),
+                        Upper = rep(0, nGroups),
+                        Scale = rep(1,  nGroups))
+      if (!is.null(attr(ans.lst, "group.var")))
+        names(ans)[1] <- attr(ans.lst, "group.var")
+      for (i in 1:n) out[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
+      if (all(ans$Scale == 1)) ans$Scale <- NULL
+
+      ans <- structure(ans, class = "pooledBinList", fullList = ans.lst,
+                       x.var = vars$x, m.var = vars$m, n.var = vars$n,
+                       group.names = groups, group.var = group.var,scale=scale,call=call)
+
+
     } else {
       ans <- pooledBin.fit(x,m,n,
                            pt.method=pt.method,
                            ci.method=ci.method,
                            scale=scale,alpha=alpha,tol=tol)
       #names(ans) <- "1"
-      ans <- structure(ans, class = "pooledBin", group.names = names(ans),
-                       x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group, scale=scale,call = call)
+      ans.lst <- ans
+      ans <- data.frame(P=scale*ans.lst$p,
+                        Lower = scale*ans.lst$lcl,
+                        Upper = scale*ans.lst$ucl,
+                        Scale = scale) # really to match Hmisc's binconf()
+      if(scale == 1) ans$Scale <- NULL
+      ans <- structure(ans,class="pooledBin",fullList = ans.lst,call=call,group.names = "", group.var = "", scale=scale)
+      #ans <- structure(ans, class = "pooledBin", group.names = names(ans),
+      #                x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group, scale=scale,call = call)
 
     }
     #attributes(ans,"x.var") <- vars$x
@@ -272,40 +330,71 @@
     args <- list(...)
     #if(is.null(args$digits)) digits <- 4
     #else digits <- args$digits
-    scale <- x$scale
     #p <- round(scale*x$p,digits)
     #lcl <- round(scale*x$lcl, digits)
     #ucl <- round(scale*x$ucl, digits)
-    p <- scale*x$p
-    lcl <- scale*x$lcl
-    ucl <- scale*x$ucl
-    mat <- matrix(c(p,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
-    dimnames(mat) <- list(c(""),c("P","Lower","Upper","Scale"))
-    if(scale == 1) mat <- mat[,-4]
-    print(mat,...)
-    invisible(x)
+    # p <- scale*x$p
+    # lcl <- scale*x$lcl
+    # ucl <- scale*x$ucl
+    # mat <- matrix(c(p,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
+    # dimnames(mat) <- list(c(""),c("P","Lower","Upper","Scale"))
+    # if(scale == 1) mat <- mat[,-4]
+    # print(mat,...)
+    x
   }
 
 "print.pooledBinList" <- function (x, ...)
 {
-  n <- length(x)
-  out <- data.frame(Group = attr(x, "group.names"),
-                    PointEst = rep(0,  n),
-                    Lower = rep(0, n),
-                    Upper = rep(0, n),
-                    Scale = rep(1,  n))
-  if (!is.null(attr(x, "group.var")))
-    names(out)[1] <- attr(x, "group.var")
-  for (i in 1:n) out[i, 2:5] <- x[[i]]$scale * c(x[[i]]$p,  x[[i]]$lcl, x[[i]]$ucl, 1)
-  if (all(out$Scale == 1))
-    out$Scale <- NULL
-  print(out,...)
-  invisible(x)
+  # n <- length(x)
+  # out <- data.frame(Group = attr(x, "group.names"),
+  #                   PointEst = rep(0,  n),
+  #                   Lower = rep(0, n),
+  #                   Upper = rep(0, n),
+  #                   Scale = rep(1,  n))
+  # if (!is.null(attr(x, "group.var")))
+  #   names(out)[1] <- attr(x, "group.var")
+  # for (i in 1:n) out[i, 2:5] <- x[[i]]$scale * c(x[[i]]$p,  x[[i]]$lcl, x[[i]]$ucl, 1)
+  # if (all(out$Scale == 1))
+  #   out$Scale <- NULL
+  x
 }
+
+# "as.data.frame.pooledBin" <- function(x, row.names = NULL, optional = FALSE, ...){
+#   args <- list(...)
+#   #if(is.null(args$digits)) digits <- 4
+#   #else digits <- args$digits
+#   scale <- x$scale
+#   #p <- round(scale*x$p,digits)
+#   #lcl <- round(scale*x$lcl, digits)
+#   #ucl <- round(scale*x$ucl, digits)
+#   p <- scale*x$p
+#   lcl <- scale*x$lcl
+#   ucl <- scale*x$ucl
+#   df <- data.frame(P=p,Lower=lcl,Upper=ucl,Scale=scale)
+#   rownames(df) <- 1:nrow(df)
+#   if(scale == 1) df$Scale <- NULL
+#   df
+# }
+
+# "as.data.frame.pooledBinList" <- function (x, row.names = NULL, optional = FALSE, ...)
+# {
+#   n <- length(x)
+#   out <- data.frame(Group = attr(x, "group.names"),
+#                     PointEst = rep(0,  n),
+#                     Lower = rep(0, n),
+#                     Upper = rep(0, n),
+#                     Scale = rep(1,  n))
+#   if (!is.null(attr(x, "group.var")))
+#     names(out)[1] <- attr(x, "group.var")
+#   for (i in 1:n) out[i, 2:5] <- x[[i]]$scale * c(x[[i]]$p,  x[[i]]$lcl, x[[i]]$ucl, 1)
+#   if (all(out$Scale == 1))
+#     out$Scale <- NULL
+#   out
+# }
 
 "summary.pooledBin" <-
   function(object, ...){
-    x <- object
+    x <- attr(object,"fullList")
     args <- list(...)
     scale <- x$scale
     #if(is.null(args$digits)) digits <- 4
@@ -351,7 +440,7 @@
                           PtEstName = x$pt.method,
                           CIEstName = x$ci.method,
                           Alpha = x$alpha) # c() just adds to the list x
-  out <- lapply(object, sumf)
+  out <- lapply(attr(object,"fullList"), sumf)
   #attributes(out) <- list(class = "summary.pooledBinList", names = attr(object,"names"),group.var = attr(object,"group.var"))
   #attributes(out) <- list(class = "summary.pooledBinList",
   #                        names = grp.names,group.var = attr(object,"group.var"))
@@ -407,15 +496,16 @@
 "plot.pooledBin" <-
   function(x,pch=16,refline=TRUE,printR2=TRUE,...){
     # reference: Chen & Swallow
-    if(all(x$n==1)) {
-      xmn <- as.list(by(x$x,x$m,function(u) c(sum(u),length(u))))
+    x.lst <- attr(x,"fullList")
+    if(all(x.lst$n==1)) {
+      xmn <- as.list(by(x.lst$x,x.lst$m,function(u) c(sum(u),length(u))))
       m <- as.numeric(names(xmn))
       xx <- sapply(xmn,function(u) u[1])
       n <- sapply(xmn,function(u) u[2])
     } else {
-      xx <- x$x
-      m <- x$m
-      n <- x$n
+      xx <- x.lst$x
+      m <- x.lst$m
+      n <- x.lst$n
     }
     y <- log((xx+0.5)/(n+0.5))
     cc <- lm(y ~ m)
@@ -427,21 +517,22 @@
 
 "plot.pooledBinList" <-
   function(x,pch=16,refline=TRUE,printR2=TRUE,layout=NULL,...){
-    n.groups <- length(x)
+    x.lst <- attr(x,"fullList")
+    n.groups <- length(x.lst)
     n.groups.root <- ceiling(sqrt(n.groups))
     if(is.null(layout)) layout <- c(n.groups.root, n.groups.root)
     par(mfrow = layout)
     for(i in 1:n.groups){
       # reference: Chen & Swallow
-      if(all(x[[i]]$n==1)) {
-        xmn <- as.list(by(x[[i]]$x, x[[i]]$m, function(x) c(sum(x),length(x))))
+      if(all(x.lst[[i]]$n==1)) {
+        xmn <- as.list(by(x.lst[[i]]$x, x.lst[[i]]$m, function(x) c(sum(x),length(x))))
         m <- as.numeric(names(xmn))
         xx <- sapply(xmn,function(x) x[1])
         n <- sapply(xmn,function(x) x[2])
       } else {
-        xx <- x[[i]]$x
-        m <- x[[i]]$m
-        n <- x[[i]]$n
+        xx <- x.lst[[i]]$x
+        m <- x.lst[[i]]$m
+        n <- x.lst[[i]]$n
       }
       y <- log((xx+0.5)/(n+0.5))
       cc <- lm(y ~ m)

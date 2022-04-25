@@ -217,6 +217,31 @@
   }
 
 
+"as.data.frame.ipooledBin" <- function(x, row.names = NULL, optional = FALSE, ...){
+  args <- list(...)
+  if(is.null(scale)) scale <- 1
+  if(is.null(args$digits)) digits <- 4
+  else digits <- args$digits
+  p <- round(scale*x,digits)
+  mat <- matrix(c(p,scale),nrow=1) # really to match Hmisc's binconf()
+  dimnames(mat) <- list(c(""),c("P","Scale"))
+  if(scale == 1) mat <- mat[,-2,drop=FALSE]
+  as.data.frame(mat)
+}
+
+"as.data.frame.ipooledBinList" <- function(x, row.names = NULL, optional = FALSE, ...){
+  n <- length(x)
+  out <- data.frame(Group = attr(x,"group.names"),
+                    PointEst = rep(0,n),
+                    Scale = rep(1,n))
+  if(!is.null(attr(x,"group.var"))) names(out)[1] <- attr(x,"group.var")
+  for(i in 1:n){
+    out[i,2:3] <-  attr(x,"scale") * c(x[[i]], 1)
+  }
+  if(all(out$Scale == 1)) out$Scale <- NULL # if scale = 1, don't bother printing (do print in summary, though)
+  out
+}
+
 
 "summary.ipooledBin" <-
   function(object, ...){

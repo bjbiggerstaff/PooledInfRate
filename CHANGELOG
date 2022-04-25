@@ -1,0 +1,10 @@
+Version 1.1
+-----------
+
+  1. Removed records with n=0 or m=0 in pooledBin, pIR, pooledBinDiff, pIRDiff
+  2. Added as.data.frame methods for pooledBin/pIR, pooledBinDiff/pIRDiff, ipooledBin
+
+Version 1.0
+-----------
+
+  1. Initial release
