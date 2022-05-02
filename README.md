@@ -28,9 +28,10 @@ library(devtools) # need to install this if you do not have it
 devtools::install_github("https://github.com/CDCgov/PooledInfRate",build_vignettes = TRUE)
 ```
 
-For those on Microsoft Windows, the binary build is available in the
-file list as PooledInfRate_1.0.zip, and you can download and install
-that instead of the build-install.
+For those on Microsoft Windows, the binary build for version \#.# is
+available in the file list as PooledInfRate\_#.#.zip, and you can
+download and install that instead of the build-install. The various
+versions are available for Windows, as stored here.
 
 ## Example
 
@@ -42,16 +43,16 @@ library(PooledInfRate)
 x <- c(1,0,0,0)
 m <- c(50,25,10,5)
 pooledBin(x,m)
-#>            P        Lower        Upper 
-#> 0.0125791125 0.0007261606 0.0782849595
+#>            P        Lower      Upper
+#> 1 0.01257911 0.0007261606 0.07828496
 
 pool.dat <- data.frame(Pos = c(1,1,0,0), PoolSize = c(100,50,25,10), NumPools = c(5,8,2,3))
 pooledBin(Pos ~ PoolSize, data = pool.dat)
-#>           P       Lower       Upper 
-#> 0.016027508 0.002879876 0.087085470
+#>            P       Lower      Upper
+#> 1 0.01602751 0.002879876 0.08708547
 pIR(Pos ~ PoolSize + n(NumPools), data = pool.dat) # pIR is just a short name for 'pooledBin'
-#>            P        Lower        Upper 
-#> 0.0021291703 0.0003860092 0.0071072711
+#>            P        Lower       Upper
+#> 1 0.00212917 0.0003860092 0.007107271
 ```
 
 See the package vignette for detailed examples of the methods and user
