@@ -781,7 +781,9 @@
                     NumPools = rep(0,n),
                     NumPosPools = rep(0,n),
                     Scale = rep(1,n))
-  if(!is.null(attr(object,"group.var"))) names(ans)[1] <- attr(object,"group.var")
+  #if(!is.null(attr(object,"group.var"))) names(ans)[1] <- attr(object,"group.var")
+  if(attr(object,"group.var") != "") names(ans)[1] <- attr(object,"group.var")
+
   for(i in 1:n)
     ans[i,2:8] <- c(out[[i]]$scale * c(out[[i]]$p, out[[i]]$lcl,out[[i]]$ucl),
                     out[[i]]$N, out[[i]]$NumPools, out[[i]]$NumPosPools, out[[i]]$scale)
