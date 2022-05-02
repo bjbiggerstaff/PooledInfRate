@@ -1,13 +1,16 @@
 export(pooledBin,pIR,vectorIndex,VI,pooledBinDiff,pIRDiff,
        print.pooledBin,summary.pooledBin,plot.pooledBin,
-       print.pooledBinList,summary.pooledBinList,plot.pooledBinList,
+       #print.pooledBinList,summary.pooledBinList,plot.pooledBinList,
        print.pIR,summary.pIR,plot.pIR,
-       print.pIRList,summary.pIRList,plot.pIRList,
+       #print.pIRList,summary.pIRList,plot.pIRList,
        print.pooledBinDiff,summary.pooledBinDiff,
        print.summary.pooledBinDiff,
        print.pIRDiff,summary.pIRDiff,print.summary.pIRDiff,
        ipooledBin,print.ipooledBin,summary.ipooledBin,print.summary.ipooledBin,
-       print.ipooledBinList,summary.ipooledBinList,print.summary.ipooledBinList)
+       "[.pooledBin", "[.pIR", "[.pooledBinDiff", "[.pIRDiff",
+       "[.summary.pooledBin", "[.summary.pIR", "[.summary.pooledBinDiff", "[.summary.pIRDiff",
+       "[.ipooledBin","[.summary.ipooledBin")
+       #"[.pooledBinList", "[.pIRList")
        #as.data.frame.pooledBin,as.data.frame.pIR,
        #as.data.frame.pooledBinDiff,as.data.frame.pIRDiff,
        #as.data.frame.ipooledBin,as.data.frame.ipooledBinList)
@@ -19,14 +22,18 @@ S3method(print,  pooledBin)
 S3method(summary,pooledBin)
 S3method(plot,   pooledBin)
 #S3method(as.data.frame,   pooledBin)
+S3method("[",pooledBin)
 
-S3method(print,  pooledBinList)
-S3method(summary,pooledBinList)
-S3method(plot,   pooledBinList)
+#S3method(print,  pooledBinList)
+#S3method(summary,pooledBinList)
+#S3method(plot,   pooledBinList)
 #S3method(as.data.frame,   pooledBinList)
+#S3method("[",pooledBinList)
 
 S3method(print, summary.pooledBin)
-S3method(print, summary.pooledBinList)
+#S3method(print, summary.pooledBinList)
+S3method("[",summary.pooledBin)
+#S3method("[",summary.pooledBinList)
 
 S3method(pooledBin, default)
 S3method(pooledBin, formula)
@@ -35,15 +42,19 @@ S3method(print,  pIR)
 S3method(summary,pIR)
 S3method(plot,   pIR)
 #S3method(as.data.frame,   pIR)
+S3method("[",pIR)
 
 
-S3method(print,  pIRList)
-S3method(summary,pIRList)
-S3method(plot,   pIRList)
+#S3method(print,  pIRList)
+#S3method(summary,pIRList)
+#S3method(plot,   pIRList)
 #S3method(as.data.frame,   pIRList)
+#S3method("[",pIRList)
 
 S3method(print, summary.pIR)
-S3method(print, summary.pIRList)
+#S3method(print, summary.pIRList)
+S3method("[",summary.pIR)
+#S3method("[",summary.pIRList)
 
 S3method(pIR, default)
 S3method(pIR, formula)
@@ -55,22 +66,27 @@ S3method(VI, default)
 S3method(VI, formula)
 
 S3method(print, vectorIndex)
-S3method(print, vectorIndexList)
+#S3method(print, vectorIndexList)
 
 S3method(summary, vectorIndex)
-S3method(summary, vectorIndexList)
+#S3method(summary, vectorIndexList)
+S3method("[",vectorIndex)
+S3method("[",summary.vectorIndex)
 
 S3method(print, summary.vectorIndex)
-S3method(print, summary.vectorIndexList)
+#S3method(print, summary.vectorIndexList)
 
 S3method(print, VI)
-S3method(print, VIList)
+#S3method(print, VIList)
 
 S3method(summary, VI)
-S3method(summary, VIList)
+#S3method(summary, VIList)
+
+S3method("[",VI)
+S3method("[",summary.VI)
 
 S3method(print, summary.VI)
-S3method(print, summary.VIList)
+#S3method(print, summary.VIList)
 
 
 S3method(pooledBinDiff,default)
@@ -79,6 +95,8 @@ S3method(pooledBinDiff,formula)
 S3method(print,pooledBinDiff)
 S3method(summary,pooledBinDiff)
 #S3method(as.data.frame,pooledBinDiff)
+S3method("[",pooledBinDiff)
+S3method("[",summary.pooledBinDiff)
 
 S3method(print, summary.pooledBinDiff)
 
@@ -86,27 +104,26 @@ S3method(pIRDiff, default)
 S3method(pIRDiff, formula)
 S3method(print,   pIRDiff)
 S3method(summary, pIRDiff)
+S3method("[",pIRDiff)
+S3method("[",summary.pIRDiff)
 #S3method(as.data.frame, pIRDiff)
 S3method(print,   summary.pIRDiff)
-
-
-
-
-
 
 S3method(print,  ipooledBin)
 S3method(summary,ipooledBin)
 #S3method(as.data.frame,ipooledBin)
 
-S3method(print,  ipooledBinList)
-S3method(summary,ipooledBinList)
+#S3method(print,  ipooledBinList)
+#S3method(summary,ipooledBinList)
 #S3method(as.data.frame,ipooledBinList)
 
 S3method(print, summary.ipooledBin)
-S3method(print, summary.ipooledBinList)
+#S3method(print, summary.ipooledBinList)
 
 S3method(ipooledBin, default)
 S3method(ipooledBin, formula)
+S3method("[",ipooledBin)
+S3method("[",summary.ipooledBin)
 
 
 

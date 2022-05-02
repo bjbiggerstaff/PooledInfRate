@@ -2,7 +2,7 @@
 \alias{summary.ipooledBin}
 \alias{summary.ipooledBinList}
 \alias{print.summary.ipooledBin}
-\alias{print.summary.ipooledBinList}
+\alias{[.summary.ipooledBin}
 
 \title{
 Summarize ipooledBin or ipooledBinList objects
@@ -16,14 +16,18 @@ The functions provide more detail underlying the results from ipooledBin
 \method{summary}{ipooledBin}(object, ...)
 
 \method{print}{summary.ipooledBin}(x, ...)
-\method{print}{summary.ipooledBinList}(x, ...)
+
+\method{[}{summary.ipooledBin}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 
 }
 
 \arguments{
-  \item{object}{an object of class \code{ipooledBin} or \code{ipooledBinList}}
+  \item{object}{an object of class \code{ipooledBin}}
+  \item{x}{an object of class \code{summary.ipooledBin}}
   \item{\dots}{for additional arguments}
-  \item{x}{an object of class \code{summary.ipooledBin} or \code{summary.ipooledBinList}}
+    \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
+
+  \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
 }
 
 \details{

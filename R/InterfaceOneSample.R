@@ -21,10 +21,18 @@
     n <- n[mn.nozero]
 
     if(!missing(group)){
-    xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n) & !is.na(group))
-    group <- group[xmng.nomiss]
+      group.var <- deparse(substitute(group))
+      xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n) & !is.na(group))
+      group <- group[xmng.nomiss]
       groups <- unique(group)
       nGroups <- length(groups)
+    } else {
+      xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n))
+      group <- rep("SINGLE",length(x[xmng.nomiss]))
+      groups <- unique(group)
+      nGroups <- length(groups)
+      group.var <- ""
+    }
       ans <- vector(mode="list",length=nGroups)
 
       for(i in 1:nGroups){
@@ -34,56 +42,48 @@
                                                     pt.method=pt.method,
                                                     ci.method=ci.method,
                                                     scale=scale,alpha=alpha,tol=tol)
-        class(ans[[i]]) <- "pooledBin"
-        attr(ans[[i]],"call") <- call
+
+        #class(ans[[i]]) <- "pooledBin"
+        #attr(ans[[i]],"call") <- call
+        #print(ans[[i]])
       }
-      #names(ans) <- groups
-      #class(ans) <- "pooledBinList" # added this so it will be able to use the print.pooledBinList function""
-      #attributes(ans) <- vars
-      #class(ans) <- "pooledBinList"
-      #attributes(ans) <- list(class = "pooledBinList", names = groups,
-      #                        x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group)
+      #if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
+      #else group.var <- "Group"
 
-      #names(ans) <- groups
-      if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
-      else group.var <- "Group"
-
-      #attributes(ans) <- list(class = "pooledBinList", group.names = groups, group.var = group.var,call=call)
-
-      #
       ans.lst <- ans
-      ans <- data.frame(Group = attr(x, "group.names"),
-                        PointEst = rep(0,  nGroups),
+
+      ans <- data.frame(Group = groups,
+                        P = rep(0,  nGroups),
                         Lower = rep(0, nGroups),
                         Upper = rep(0, nGroups),
                         Scale = rep(1,  nGroups))
-      if (!is.null(attr(ans.lst, "group.var")))
-        names(ans)[1] <- attr(ans.lst, "group.var")
-      for (i in 1:n) ans[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
+
+      if (group.var != "") names(ans)[1] <- group.var
+
+      #if (!is.null(attr(ans.lst, "group.var")))
+      #  names(ans)[1] <- attr(ans.lst, "group.var")
+      for (i in 1:nGroups) ans[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
       if (all(ans$Scale == 1)) ans$Scale <- NULL
 
-      ans <- structure(ans, class = "pooledBinList", fullList = ans.lst, group.names = groups, group.var = group.var,scale=scale,call=call)
+      if(nGroups == 1) ans$Group <- NULL
 
-    } else {
-      ans <- pooledBin.fit(x, m, n,
-                           pt.method=pt.method,
-                           ci.method=ci.method,
-                           scale=scale,alpha=alpha,tol=tol)
-      #attributes(ans) <- list(attributes(ans), call=call)
-      #names(ans) <- "1"
-      #ans$call <- call
-      #class(ans) <- "pooledBin"
-      #structure(ans,class="pooledBin",call=call)
-      #if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
-      #else group.var <- "Group"
-      ans.lst <- ans
-      ans <- data.frame(P=scale*ans.lst$p,
-                        Lower = scale*ans.lst$lcl,
-                        Upper = scale*ans.lst$ucl,
-                        Scale = scale) # really to match Hmisc's binconf()
-      if(scale == 1) ans$Scale <- NULL
-      ans <- structure(ans,class="pooledBin",fullList = ans.lst,call=call,group.names = "", group.var = "", scale=scale)
-    }
+      #ans <- structure(ans, class = "pooledBinList",fullList = ans.lst, group.names = groups, group.var = group.var,scale=scale,call=call)
+      ans <- structure(ans, class = "pooledBin",fullList = ans.lst,
+                       group.names = groups, group.var = group.var,n.groups = nGroups, scale=scale,call=call)
+
+    #} else {
+    #  ans <- pooledBin.fit(x, m, n,
+    #                       pt.method=pt.method,
+    #                       ci.method=ci.method,
+    #                       scale=scale,alpha=alpha,tol=tol)
+    #  ans.lst <- ans
+    #  ans <- data.frame(P=scale*ans.lst$p,
+    #                    Lower = scale*ans.lst$lcl,
+    #                    Upper = scale*ans.lst$ucl,
+    #                    Scale = scale) # really to match Hmisc's binconf()
+    #  if(scale == 1) ans$Scale <- NULL
+    #  ans <- structure(ans,class="pooledBin",fullList = ans.lst,call=call,group.names = "", group.var = "", scale=scale)
+    #}
     ans
   }
 
@@ -100,8 +100,6 @@
 
     vars <- pooledBinParseFormula(x, data)
     if(any(sapply(vars,length)>1)) stop("only variable names permitted in formula; perhaps use the default call")
-
-
 
     # omit records with missing data -- note, if data contains records missing
     # anywhere (even not in X, M, N, Group, they are omitted), so care should be
@@ -130,10 +128,12 @@
       group <- eval(parse(text=vars$group), data)
       groups <- unique(group)
       nGroups <- length(groups)
+      group.var <- vars$group
     }  else{
       group <- rep("SINGLE",length(x))
       groups <- unique(group)
       nGroups <- 1
+      group.var <- ""
     }
 
       # restrict to data with no missing x, m, n, group
@@ -143,11 +143,14 @@
       m <- m[mn.nozero]
       n <- n[mn.nozero]
 
-      xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n) & !is.na(group))
+      if(nGroups == 1){
+        xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n))
+      } else {
+        xmng.nomiss <- (!is.na(x) & !is.na(m) & !is.na(n) & !is.na(group))
+      }
       x <- x[xmng.nomiss]
       m <- m[xmng.nomiss]
       n <- n[xmng.nomiss]
-
 
       group <- group[xmng.nomiss]
       groups <- unique(group)
@@ -162,7 +165,7 @@
     groups <- unique(group)
     nGroups <- length(groups)
 
-    if(nGroups > 1){
+    #if(nGroups > 1){
       ans <- vector(mode="list",length=nGroups)
       for(i in 1:nGroups){
         ans[[i]] <- pooledBin.fit(x[group==groups[i]],
@@ -171,45 +174,51 @@
                                   pt.method=pt.method,
                                   ci.method=ci.method,
                                   scale=scale,alpha=alpha,tol=tol)
-        class(ans[[i]]) <- "pooledBin"
+
+        #class(ans[[i]]) <- "pooledBin"
         #attributes(ans[[i]]) <- list(class="pooledBin",call=call)
-        attr(ans[[i]],"call") <- call
+        #attr(ans[[i]],"call") <- call
 
       }
       names(ans) <- groups
       ans.lst <- ans
-      ans <- data.frame(Group = attr(x, "group.names"),
-                        PointEst = rep(0,  nGroups),
+      #for(i in 1:nGroups) class(ans.lst[[i]]) <- "pooledBin"
+
+      ans <- data.frame(Group = groups,
+                        P = rep(0,  nGroups),
                         Lower = rep(0, nGroups),
                         Upper = rep(0, nGroups),
                         Scale = rep(1,  nGroups))
-      if (!is.null(attr(ans.lst, "group.var")))
-        names(ans)[1] <- attr(ans.lst, "group.var")
-      for (i in 1:n) out[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
+      if (!is.null(vars$group))
+        names(ans)[1] <- vars$group
+      for (i in 1:nGroups) ans[i, 2:5] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p,  ans.lst[[i]]$lcl, ans.lst[[i]]$ucl, 1)
       if (all(ans$Scale == 1)) ans$Scale <- NULL
 
-      ans <- structure(ans, class = "pooledBinList", fullList = ans.lst,
+      if(nGroups == 1) ans$Group <- NULL
+
+      ans <- structure(ans, class = "pooledBin", fullList = ans.lst,
                        x.var = vars$x, m.var = vars$m, n.var = vars$n,
-                       group.names = groups, group.var = group.var,scale=scale,call=call)
+                       group.names = groups, group.var = group.var,
+                       n.groups = nGroups, scale=scale,call=call)
 
 
-    } else {
-      ans <- pooledBin.fit(x,m,n,
-                           pt.method=pt.method,
-                           ci.method=ci.method,
-                           scale=scale,alpha=alpha,tol=tol)
-      #names(ans) <- "1"
-      ans.lst <- ans
-      ans <- data.frame(P=scale*ans.lst$p,
-                        Lower = scale*ans.lst$lcl,
-                        Upper = scale*ans.lst$ucl,
-                        Scale = scale) # really to match Hmisc's binconf()
-      if(scale == 1) ans$Scale <- NULL
-      ans <- structure(ans,class="pooledBin",fullList = ans.lst,call=call,group.names = "", group.var = "", scale=scale)
-      #ans <- structure(ans, class = "pooledBin", group.names = names(ans),
-      #                x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group, scale=scale,call = call)
-
-    }
+    # } else {
+    #   ans <- pooledBin.fit(x,m,n,
+    #                        pt.method=pt.method,
+    #                        ci.method=ci.method,
+    #                        scale=scale,alpha=alpha,tol=tol)
+    #   #names(ans) <- "1"
+    #   ans.lst <- ans
+    #   ans <- data.frame(P=scale*ans.lst$p,
+    #                     Lower = scale*ans.lst$lcl,
+    #                     Upper = scale*ans.lst$ucl,
+    #                     Scale = scale) # really to match Hmisc's binconf()
+    #   if(scale == 1) ans$Scale <- NULL
+    #   ans <- structure(ans,class="pooledBinList",fullList = ans.lst,call=call,group.names = "", group.var = "", scale=scale)
+    #   #ans <- structure(ans, class = "pooledBin", group.names = names(ans),
+    #   #                x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group, scale=scale,call = call)
+    #
+    # }
     #attributes(ans,"x.var") <- vars$x
     #attributes(ans,"m.var") <- vars$m
     #attributes(ans,"n.var") <- vars$n
@@ -327,7 +336,7 @@
 
 
 "print.pooledBin" <- function(x, ...){
-    args <- list(...)
+    #args <- list(...)
     #if(is.null(args$digits)) digits <- 4
     #else digits <- args$digits
     #p <- round(scale*x$p,digits)
@@ -340,24 +349,342 @@
     # dimnames(mat) <- list(c(""),c("P","Lower","Upper","Scale"))
     # if(scale == 1) mat <- mat[,-4]
     # print(mat,...)
-    x
+    print(as.data.frame(unclass(x)),...)
+    invisible(x)
   }
 
-"print.pooledBinList" <- function (x, ...)
-{
-  # n <- length(x)
-  # out <- data.frame(Group = attr(x, "group.names"),
-  #                   PointEst = rep(0,  n),
-  #                   Lower = rep(0, n),
-  #                   Upper = rep(0, n),
-  #                   Scale = rep(1,  n))
-  # if (!is.null(attr(x, "group.var")))
-  #   names(out)[1] <- attr(x, "group.var")
-  # for (i in 1:n) out[i, 2:5] <- x[[i]]$scale * c(x[[i]]$p,  x[[i]]$lcl, x[[i]]$ucl, 1)
-  # if (all(out$Scale == 1))
-  #   out$Scale <- NULL
+# "print.pooledBinList" <- function (x, ...)
+# {
+#   # n <- length(x)
+#   # out <- data.frame(Group = attr(x, "group.names"),
+#   #                   PointEst = rep(0,  n),
+#   #                   Lower = rep(0, n),
+#   #                   Upper = rep(0, n),
+#   #                   Scale = rep(1,  n))
+#   # if (!is.null(attr(x, "group.var")))
+#   #   names(out)[1] <- attr(x, "group.var")
+#   # for (i in 1:n) out[i, 2:5] <- x[[i]]$scale * c(x[[i]]$p,  x[[i]]$lcl, x[[i]]$ucl, 1)
+#   # if (all(out$Scale == 1))
+#   #   out$Scale <- NULL
+#   print(as.data.frame(unclass(x)),...)
+#   invisible(x)
+# }
+
+
+# to build the package, had to use a version of "[.data.frame" without the .Internal(copyDFattr(xx,x)) call
+# this just copied x as a list along with the attributes of the data frame
+#"[.pooledBin" <- subsetDF #get("[.data.frame")
+#"[.summary.pooledBin" <- subsetDF # get("[.data.frame")
+#"[.pooledBinList" <- get("[.data.frame")
+
+"[.pooledBin" <-  function (x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)  {
+  mdrop <- missing(drop)
+  Narg <- nargs() - !mdrop
+  has.j <- !missing(j)
+  if (!all(names(sys.call()) %in% c("", "drop")) &&
+      !isS4(x))
+    warning("named arguments other than 'drop' are discouraged")
+  if (Narg < 3L) {
+    if (!mdrop)
+      warning("'drop' argument will be ignored")
+    if (missing(i))
+      return(x)
+    if (is.matrix(i))
+      return(as.matrix(x)[i])
+    nm <- names(x)
+    if (is.null(nm))
+      nm <- character()
+    if (!is.character(i) && anyNA(nm)) {
+      names(nm) <- names(x) <- seq_along(x)
+      y <- NextMethod("[")
+      cols <- names(y)
+      if (anyNA(cols))
+        stop("undefined columns selected")
+      cols <- names(y) <- nm[cols]
+    }
+    else {
+      y <- NextMethod("[")
+      cols <- names(y)
+      if (!is.null(cols) && anyNA(cols))
+        stop("undefined columns selected")
+    }
+    if (anyDuplicated(cols))
+      names(y) <- make.unique(cols)
+    attr(y, "row.names") <- .row_names_info(x, 0L)
+    attr(y, "class") <- oldClass(x)
+    return(y)
+  }
+  if (missing(i)) {
+    if (drop && !has.j && length(x) == 1L)
+      return(.subset2(x, 1L))
+    nm <- names(x)
+    if (is.null(nm))
+      nm <- character()
+    if (has.j && !is.character(j) && anyNA(nm)) {
+      names(nm) <- names(x) <- seq_along(x)
+      y <- .subset(x, j)
+      cols <- names(y)
+      if (anyNA(cols))
+        stop("undefined columns selected")
+      cols <- names(y) <- nm[cols]
+    }
+    else {
+      y <- if (has.j)
+        .subset(x, j)
+      else x
+      cols <- names(y)
+      if (anyNA(cols))
+        stop("undefined columns selected")
+    }
+    if (drop && length(y) == 1L)
+      return(.subset2(y, 1L))
+    if (anyDuplicated(cols))
+      names(y) <- make.unique(cols)
+    nrow <- .row_names_info(x, 2L)
+    if (drop && !mdrop && nrow == 1L)
+      return(structure(y, class = NULL, row.names = NULL))
+    else {
+      attr(y, "class") <- oldClass(x)
+      attr(y, "row.names") <- .row_names_info(x,
+                                              0L)
+      return(y)
+    }
+  }
+  xx <- x
+  cols <- names(xx)
+  x <- vector("list", length(x))
+  #x <- .Internal(copyDFattr(xx, x))
+  x <- as.list(xx)
+  attributes(x) <- attributes(xx)
+  oldClass(x) <- attr(x, "row.names") <- NULL
+  if (has.j) {
+    nm <- names(x)
+    if (is.null(nm))
+      nm <- character()
+    if (!is.character(j) && anyNA(nm))
+      names(nm) <- names(x) <- seq_along(x)
+    x <- x[j]
+    cols <- names(x)
+    if (drop && length(x) == 1L) {
+      if (is.character(i)) {
+        rows <- attr(xx, "row.names")
+        i <- pmatch(i, rows, duplicates.ok = TRUE)
+      }
+      xj <- .subset2(.subset(xx, j), 1L)
+      return(if (length(dim(xj)) != 2L) xj[i] else xj[i,
+                                                      , drop = FALSE])
+    }
+    if (anyNA(cols))
+      stop("undefined columns selected")
+    if (!is.null(names(nm)))
+      cols <- names(x) <- nm[cols]
+    nxx <- structure(seq_along(xx), names = names(xx))
+    sxx <- match(nxx[j], seq_along(xx))
+  }
+  else sxx <- seq_along(x)
+  rows <- NULL
+  if (is.character(i)) {
+    rows <- attr(xx, "row.names")
+    i <- pmatch(i, rows, duplicates.ok = TRUE)
+  }
+  for (j in seq_along(x)) {
+    xj <- xx[[sxx[j]]]
+    x[[j]] <- if (length(dim(xj)) != 2L)
+      xj[i]
+    else xj[i, , drop = FALSE]
+  }
+  if (drop) {
+    n <- length(x)
+    if (n == 1L)
+      return(x[[1L]])
+    if (n > 1L) {
+      xj <- x[[1L]]
+      nrow <- if (length(dim(xj)) == 2L)
+        dim(xj)[1L]
+      else length(xj)
+      drop <- !mdrop && nrow == 1L
+    }
+    else drop <- FALSE
+  }
+  if (!drop) {
+    if (is.null(rows))
+      rows <- attr(xx, "row.names")
+    rows <- rows[i]
+    if ((ina <- anyNA(rows)) | (dup <- anyDuplicated(rows))) {
+      if (!dup && is.character(rows))
+        dup <- "NA" %in% rows
+      if (ina)
+        rows[is.na(rows)] <- "NA"
+      if (dup)
+        rows <- make.unique(as.character(rows))
+    }
+    if (has.j && anyDuplicated(nm <- names(x)))
+      names(x) <- make.unique(nm)
+    if (is.null(rows))
+      rows <- attr(xx, "row.names")[i]
+    attr(x, "row.names") <- rows
+    oldClass(x) <- oldClass(xx)
+  }
   x
 }
+
+"[.summary.pooledBin" <-  function (x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)  {
+  mdrop <- missing(drop)
+  Narg <- nargs() - !mdrop
+  has.j <- !missing(j)
+  if (!all(names(sys.call()) %in% c("", "drop")) &&
+      !isS4(x))
+    warning("named arguments other than 'drop' are discouraged")
+  if (Narg < 3L) {
+    if (!mdrop)
+      warning("'drop' argument will be ignored")
+    if (missing(i))
+      return(x)
+    if (is.matrix(i))
+      return(as.matrix(x)[i])
+    nm <- names(x)
+    if (is.null(nm))
+      nm <- character()
+    if (!is.character(i) && anyNA(nm)) {
+      names(nm) <- names(x) <- seq_along(x)
+      y <- NextMethod("[")
+      cols <- names(y)
+      if (anyNA(cols))
+        stop("undefined columns selected")
+      cols <- names(y) <- nm[cols]
+    }
+    else {
+      y <- NextMethod("[")
+      cols <- names(y)
+      if (!is.null(cols) && anyNA(cols))
+        stop("undefined columns selected")
+    }
+    if (anyDuplicated(cols))
+      names(y) <- make.unique(cols)
+    attr(y, "row.names") <- .row_names_info(x, 0L)
+    attr(y, "class") <- oldClass(x)
+    return(y)
+  }
+  if (missing(i)) {
+    if (drop && !has.j && length(x) == 1L)
+      return(.subset2(x, 1L))
+    nm <- names(x)
+    if (is.null(nm))
+      nm <- character()
+    if (has.j && !is.character(j) && anyNA(nm)) {
+      names(nm) <- names(x) <- seq_along(x)
+      y <- .subset(x, j)
+      cols <- names(y)
+      if (anyNA(cols))
+        stop("undefined columns selected")
+      cols <- names(y) <- nm[cols]
+    }
+    else {
+      y <- if (has.j)
+        .subset(x, j)
+      else x
+      cols <- names(y)
+      if (anyNA(cols))
+        stop("undefined columns selected")
+    }
+    if (drop && length(y) == 1L)
+      return(.subset2(y, 1L))
+    if (anyDuplicated(cols))
+      names(y) <- make.unique(cols)
+    nrow <- .row_names_info(x, 2L)
+    if (drop && !mdrop && nrow == 1L)
+      return(structure(y, class = NULL, row.names = NULL))
+    else {
+      attr(y, "class") <- oldClass(x)
+      attr(y, "row.names") <- .row_names_info(x,
+                                              0L)
+      return(y)
+    }
+  }
+  xx <- x
+  cols <- names(xx)
+  x <- vector("list", length(x))
+  #x <- .Internal(copyDFattr(xx, x))
+  x <- as.list(xx)
+  attributes(x) <- attributes(xx)
+  oldClass(x) <- attr(x, "row.names") <- NULL
+  if (has.j) {
+    nm <- names(x)
+    if (is.null(nm))
+      nm <- character()
+    if (!is.character(j) && anyNA(nm))
+      names(nm) <- names(x) <- seq_along(x)
+    x <- x[j]
+    cols <- names(x)
+    if (drop && length(x) == 1L) {
+      if (is.character(i)) {
+        rows <- attr(xx, "row.names")
+        i <- pmatch(i, rows, duplicates.ok = TRUE)
+      }
+      xj <- .subset2(.subset(xx, j), 1L)
+      return(if (length(dim(xj)) != 2L) xj[i] else xj[i,
+                                                      , drop = FALSE])
+    }
+    if (anyNA(cols))
+      stop("undefined columns selected")
+    if (!is.null(names(nm)))
+      cols <- names(x) <- nm[cols]
+    nxx <- structure(seq_along(xx), names = names(xx))
+    sxx <- match(nxx[j], seq_along(xx))
+  }
+  else sxx <- seq_along(x)
+  rows <- NULL
+  if (is.character(i)) {
+    rows <- attr(xx, "row.names")
+    i <- pmatch(i, rows, duplicates.ok = TRUE)
+  }
+  for (j in seq_along(x)) {
+    xj <- xx[[sxx[j]]]
+    x[[j]] <- if (length(dim(xj)) != 2L)
+      xj[i]
+    else xj[i, , drop = FALSE]
+  }
+  if (drop) {
+    n <- length(x)
+    if (n == 1L)
+      return(x[[1L]])
+    if (n > 1L) {
+      xj <- x[[1L]]
+      nrow <- if (length(dim(xj)) == 2L)
+        dim(xj)[1L]
+      else length(xj)
+      drop <- !mdrop && nrow == 1L
+    }
+    else drop <- FALSE
+  }
+  if (!drop) {
+    if (is.null(rows))
+      rows <- attr(xx, "row.names")
+    rows <- rows[i]
+    if ((ina <- anyNA(rows)) | (dup <- anyDuplicated(rows))) {
+      if (!dup && is.character(rows))
+        dup <- "NA" %in% rows
+      if (ina)
+        rows[is.na(rows)] <- "NA"
+      if (dup)
+        rows <- make.unique(as.character(rows))
+    }
+    if (has.j && anyDuplicated(nm <- names(x)))
+      names(x) <- make.unique(nm)
+    if (is.null(rows))
+      rows <- attr(xx, "row.names")[i]
+    attr(x, "row.names") <- rows
+    oldClass(x) <- oldClass(xx)
+  }
+  x
+}
+
+
+
+
+
+
+
 
 # "as.data.frame.pooledBin" <- function(x, row.names = NULL, optional = FALSE, ...){
 #   args <- list(...)
@@ -392,49 +719,49 @@
 #   out
 # }
 
-"summary.pooledBin" <-
-  function(object, ...){
-    x <- attr(object,"fullList")
-    args <- list(...)
-    scale <- x$scale
-    #if(is.null(args$digits)) digits <- 4
-    #else digits <- args$digits
-    switch(x$pt.method,
-           "firth" = x$PtEstName <- "Firth's Correction",
-           "gart" = x$PtEstName <- "Gart's Correction",
-           "bc-mle" = x$PtEstName <- "Gart's Correction",
-           "mle" = x$PtEstName <- "Maximum Likelihood",
-           "mir" = x$PtEstName <- "Minimum Infection Rate"
-    )
-    switch(x$ci.method,
-           "skew-score" = x$CIEstName <- "Skew-Corrected Score (Gart)",
-           "bc-skew-score" = x$CIEstName <- "Bias- & Skew-Corrected Score (Gart)",
-           "score" = x$CIEstName <- "Score",
-           "lrt" = x$CIEstName <- "Likelihood Ratio Test Inversion",
-           "wald" = x$CIEstName <- "Wald",
-           "mir" = x$CIEstName <- "Minimum Infection Rate"
-    )
-    structure(x,class="summary.pooledBin",call=attr(object,"call"),scale=x$scale)
-  }
+# "summary.pooledBin" <-
+#   function(object, ...){
+#     x <- attr(object,"fullList")
+#     args <- list(...)
+#     scale <- x$scale
+#     #if(is.null(args$digits)) digits <- 4
+#     #else digits <- args$digits
+#     switch(x$pt.method,
+#            "firth" = x$PtEstName <- "Firth's Correction",
+#            "gart" = x$PtEstName <- "Gart's Correction",
+#            "bc-mle" = x$PtEstName <- "Gart's Correction",
+#            "mle" = x$PtEstName <- "Maximum Likelihood",
+#            "mir" = x$PtEstName <- "Minimum Infection Rate"
+#     )
+#     switch(x$ci.method,
+#            "skew-score" = x$CIEstName <- "Skew-Corrected Score (Gart)",
+#            "bc-skew-score" = x$CIEstName <- "Bias- & Skew-Corrected Score (Gart)",
+#            "score" = x$CIEstName <- "Score",
+#            "lrt" = x$CIEstName <- "Likelihood Ratio Test Inversion",
+#            "wald" = x$CIEstName <- "Wald",
+#            "mir" = x$CIEstName <- "Minimum Infection Rate"
+#     )
+#     structure(object,class="summary.pooledBin",fullList=x,call=attr(object,"call"),scale=x$scale)
+#   }
+#
+# "print.summary.pooledBin" <-
+#   function(x, ...){
+#     args <- list(...)
+#     scale <- x$scale
+#     x.lst <- attr(x,"fullList")
+#     cat("Estimation of Binomial Proportion for Pooled Data\n\n")
+#     print.pooledBin(x, ...)
+#     cat("\n")
+#     cat(paste0("\nCall: ", deparse(attr(x,"call"),width.cutoff = 100),"\n\n"))
+#     cat(paste("Point estimator:",attr(x,"fullList")$PtEstName,"\n"))
+#     cat(paste("CI method:",attr(x,"fullList")$CIEstName,"\n\n"))
+#     cat(paste("Number of individuals:",sum(attr(x,"fullList")$n * attr(x,"fullList")$m),"\n"))
+#     cat(paste("Number of pools:",sum(attr(x,"fullList")$n),"\n"))
+#     cat(paste("Number of positive pools:",sum(attr(x,"fullList")$x),"\n"))
+#     invisible(x)
+#   }
 
-"print.summary.pooledBin" <-
-  function(x, ...){
-    args <- list(...)
-    scale <- x$scale
-    cat("Estimation of Binomial Proportion for Pooled Data\n\n")
-    print.pooledBin(x, ...)
-    cat("\n")
-    cat(paste0("\nCall: ", deparse(attr(x,"call"),width.cutoff = 100),"\n\n"))
-    cat(paste("Point estimator:",x$PtEstName,"\n"))
-    cat(paste("CI method:",x$CIEstName,"\n\n"))
-    cat(paste("Number of individuals:",sum(x$n * x$m),"\n"))
-    cat(paste("Number of pools:",sum(x$n),"\n"))
-    cat(paste("Number of positive pools:",sum(x$x),"\n"))
-    invisible(x)
-  }
-
-
-"summary.pooledBinList" <- function(object, ...){
+"summary.pooledBin" <- function(object, ...){
   grp.names <- as.character(attr(object,"group.names"))
   "sumf" <- function(x) c(x, N = sum(x$n * x$m), NumPools = sum(x$n), NumPosPools = sum(x$x),
                           PtEstName = x$pt.method,
@@ -444,14 +771,9 @@
   #attributes(out) <- list(class = "summary.pooledBinList", names = attr(object,"names"),group.var = attr(object,"group.var"))
   #attributes(out) <- list(class = "summary.pooledBinList",
   #                        names = grp.names,group.var = attr(object,"group.var"))
-  structure(out, class = "summary.pooledBinList",
-            names = grp.names,group.var = attr(object,"group.var"),
-            call = attr(object,"call"))
-}
 
-"print.summary.pooledBinList" <- function(x, ...){
-  n <- length(x)
-  out <- data.frame(Group = names(x),
+  n <- length(out)
+  ans <- data.frame(Group = grp.names,
                     PointEst = rep(0,n),
                     Lower = rep(0,n),
                     Upper = rep(0,n),
@@ -459,22 +781,49 @@
                     NumPools = rep(0,n),
                     NumPosPools = rep(0,n),
                     Scale = rep(1,n))
-  if(!is.null(attr(x,"group.var"))) names(out)[1] <- attr(x,"group.var")
+  if(!is.null(attr(object,"group.var"))) names(ans)[1] <- attr(object,"group.var")
   for(i in 1:n)
-    out[i,2:8] <- c(x[[i]]$scale * c(x[[i]]$p, x[[i]]$lcl,x[[i]]$ucl), x[[i]]$N, x[[i]]$NumPools, x[[i]]$NumPosPools, x[[i]]$scale)
+    ans[i,2:8] <- c(out[[i]]$scale * c(out[[i]]$p, out[[i]]$lcl,out[[i]]$ucl),
+                    out[[i]]$N, out[[i]]$NumPools, out[[i]]$NumPosPools, out[[i]]$scale)
+
+  if(attr(object,"n.groups") == 1) ans$Group <- NULL
+
+  structure(ans, class = "summary.pooledBin",
+            df = as.data.frame(unclass(ans)),
+            fullList = attr(object,"fullList"),
+            #names = grp.names,
+            group.var = attr(object,"group.var"),
+            call = attr(object,"call"))
+}
+
+"print.summary.pooledBin" <- function(x, ...){
+  #n <- length(x)
+  #out <- data.frame(Group = names(x),
+  #                  PointEst = rep(0,n),
+  #                  Lower = rep(0,n),
+  #                  Upper = rep(0,n),
+  #                  N = rep(0,n),
+  #                  NumPools = rep(0,n),
+  #                  NumPosPools = rep(0,n),
+  #                  Scale = rep(1,n))
+  #if(!is.null(attr(x,"group.var"))) names(out)[1] <- attr(x,"group.var")
+  #for(i in 1:n)
+  #  out[i,2:8] <- c(x[[i]]$scale * c(x[[i]]$p, x[[i]]$lcl,x[[i]]$ucl), x[[i]]$N, x[[i]]$NumPools, x[[i]]$NumPosPools, x[[i]]$scale)
 
   #if(is.null(digits)) digits <- 4
   #else digits <- args$digits
+
+
   cat("\nEstimation of Binomial Proportion for Pooled Data\n")
   cat(paste0("\nCall: ", deparse(attr(x,"call"),width.cutoff = 100),"\n\n"))
-  switch(x[[1]]$PtEstName,
+  switch(attr(x,"fullList")[[1]]$pt.method,
          "firth"  = PtEstName <- "Firth's Correction",
          "gart"   = PtEstName <- "Gart's Correction",
          "bc-mle" = PtEstName <- "Gart's Correction",
          "mle"    = PtEstName <- "Maximum Likelihood",
          "mir"    = PtEstName <- "Minimum Infection Rate"
   )
-  switch(x[[1]]$CIEstName,
+  switch(attr(x,"fullList")[[1]]$ci.method,
          "skew-score"    = CIEstName <- "Skew-Corrected Score (Gart)",
          "bc-skew-score" = CIEstName <- "Bias- & Skew-Corrected Score (Gart)",
          "score"         = CIEstName <- "Score",
@@ -484,38 +833,119 @@
   )
   cat(paste("Point estimator        :",PtEstName,"\n"))
   cat(paste("CI method              :",CIEstName,"\n"))
-  cat(paste("Confidence coefficient : ",100*(1-x[[1]]$alpha),"%\n\n",sep=""))
+  cat(paste("Confidence coefficient : ",100*(1-attr(x,"fullList")[[1]]$alpha),"%\n\n",sep=""))
 
-  print(out,...)
+  #print(as.data.frame(unclass(x)),...)
+  #print(as.data.frame(unclass(x)),...)
+  print(attr(x,"df"))
   invisible(x)
 }
 
+# "summary.pooledBinList" <- function(object, ...){
+#   grp.names <- as.character(attr(object,"group.names"))
+#   "sumf" <- function(x) c(x, N = sum(x$n * x$m), NumPools = sum(x$n), NumPosPools = sum(x$x),
+#                           PtEstName = x$pt.method,
+#                           CIEstName = x$ci.method,
+#                           Alpha = x$alpha) # c() just adds to the list x
+#   out <- lapply(attr(object,"fullList"), sumf)
+#   #attributes(out) <- list(class = "summary.pooledBinList", names = attr(object,"names"),group.var = attr(object,"group.var"))
+#   #attributes(out) <- list(class = "summary.pooledBinList",
+#   #                        names = grp.names,group.var = attr(object,"group.var"))
+#
+#   n <- length(out)
+#   ans <- data.frame(Group = names(out),
+#                     PointEst = rep(0,n),
+#                     Lower = rep(0,n),
+#                     Upper = rep(0,n),
+#                     N = rep(0,n),
+#                     NumPools = rep(0,n),
+#                     NumPosPools = rep(0,n),
+#                     Scale = rep(1,n))
+#   if(!is.null(attr(x,"group.var"))) names(ans)[1] <- attr(x,"group.var")
+#   for(i in 1:n)
+#     ans[i,2:8] <- c(out[[i]]$scale * c(out[[i]]$p, out[[i]]$lcl,out[[i]]$ucl),
+#                     out[[i]]$N, out[[i]]$NumPools, out[[i]]$NumPosPools, out[[i]]$scale)
+#
+#   structure(ans, class = "summary.pooledBinList",
+#             df = ans,
+#             fullList = attr(object,"fullList"),
+#             #names = grp.names,
+#             group.var = attr(object,"group.var"),
+#             call = attr(object,"call"))
+# }
+#
+# "print.summary.pooledBinList" <- function(x, ...){
+#   #n <- length(x)
+#   #out <- data.frame(Group = names(x),
+#   #                  PointEst = rep(0,n),
+#   #                  Lower = rep(0,n),
+#   #                  Upper = rep(0,n),
+#   #                  N = rep(0,n),
+#   #                  NumPools = rep(0,n),
+#   #                  NumPosPools = rep(0,n),
+#   #                  Scale = rep(1,n))
+#   #if(!is.null(attr(x,"group.var"))) names(out)[1] <- attr(x,"group.var")
+#   #for(i in 1:n)
+#   #  out[i,2:8] <- c(x[[i]]$scale * c(x[[i]]$p, x[[i]]$lcl,x[[i]]$ucl), x[[i]]$N, x[[i]]$NumPools, x[[i]]$NumPosPools, x[[i]]$scale)
+#
+#   #if(is.null(digits)) digits <- 4
+#   #else digits <- args$digits
+#
+#
+#   cat("\nEstimation of Binomial Proportion for Pooled Data\n")
+#   cat(paste0("\nCall: ", deparse(attr(x,"call"),width.cutoff = 100),"\n\n"))
+#   switch(attr(x,"fullList")[[1]]$pt.method,
+#          "firth"  = PtEstName <- "Firth's Correction",
+#          "gart"   = PtEstName <- "Gart's Correction",
+#          "bc-mle" = PtEstName <- "Gart's Correction",
+#          "mle"    = PtEstName <- "Maximum Likelihood",
+#          "mir"    = PtEstName <- "Minimum Infection Rate"
+#   )
+#   switch(attr(x,"fullList")[[1]]$ci.method,
+#          "skew-score"    = CIEstName <- "Skew-Corrected Score (Gart)",
+#          "bc-skew-score" = CIEstName <- "Bias- & Skew-Corrected Score (Gart)",
+#          "score"         = CIEstName <- "Score",
+#          "lrt"           = CIEstName <- "Likelihood Ratio Test Inversion",
+#          "wald"          = CIEstName <- "Wald",
+#          "mir"           = CIEstName <- "Minimum Infection Rate"
+#   )
+#   cat(paste("Point estimator        :",PtEstName,"\n"))
+#   cat(paste("CI method              :",CIEstName,"\n"))
+#   cat(paste("Confidence coefficient : ",100*(1-attr(x,"fullList")[[1]]$alpha),"%\n\n",sep=""))
+#
+#   #print(as.data.frame(unclass(x)),...)
+#   #print(as.data.frame(unclass(x)),...)
+#   print(attr(x,"df"))
+#   invisible(x)
+# }
+#
+# "[.summary.pooledBin" <- get("[.data.frame")
+# "[.summary.pooledBinList" <- get("[.data.frame")
 
 
+# "plot.pooledBin" <-
+#   function(x,pch=16,refline=TRUE,printR2=TRUE,...){
+#     # reference: Chen & Swallow
+#     x.lst <- attr(x,"fullList")
+#     if(all(x.lst$n==1)) {
+#       xmn <- as.list(by(x.lst$x,x.lst$m,function(u) c(sum(u),length(u))))
+#       m <- as.numeric(names(xmn))
+#       xx <- sapply(xmn,function(u) u[1])
+#       n <- sapply(xmn,function(u) u[2])
+#     } else {
+#       xx <- x.lst$x
+#       m <- x.lst$m
+#       n <- x.lst$n
+#     }
+#     y <- log((xx+0.5)/(n+0.5))
+#     cc <- lm(y ~ m)
+#     plot(m,y,...)
+#     if(refline) abline(cc)
+#     if(printR2) cat(paste("R-squared for diagnostic line fit =",round(summary(cc)$r.squared,4),"\n"))
+#     invisible(x)
+#   }
 
 "plot.pooledBin" <-
-  function(x,pch=16,refline=TRUE,printR2=TRUE,...){
-    # reference: Chen & Swallow
-    x.lst <- attr(x,"fullList")
-    if(all(x.lst$n==1)) {
-      xmn <- as.list(by(x.lst$x,x.lst$m,function(u) c(sum(u),length(u))))
-      m <- as.numeric(names(xmn))
-      xx <- sapply(xmn,function(u) u[1])
-      n <- sapply(xmn,function(u) u[2])
-    } else {
-      xx <- x.lst$x
-      m <- x.lst$m
-      n <- x.lst$n
-    }
-    y <- log((xx+0.5)/(n+0.5))
-    cc <- lm(y ~ m)
-    plot(m,y,...)
-    if(refline) abline(cc)
-    if(printR2) cat(paste("R-squared for diagnostic line fit =",round(summary(cc)$r.squared,4),"\n"))
-    invisible(x)
-  }
-
-"plot.pooledBinList" <-
   function(x,pch=16,refline=TRUE,printR2=TRUE,layout=NULL,...){
     x.lst <- attr(x,"fullList")
     n.groups <- length(x.lst)
@@ -546,3 +976,34 @@
     }
     invisible(x)
   }
+# "plot.pooledBinList" <-
+#   function(x,pch=16,refline=TRUE,printR2=TRUE,layout=NULL,...){
+#     x.lst <- attr(x,"fullList")
+#     n.groups <- length(x.lst)
+#     n.groups.root <- ceiling(sqrt(n.groups))
+#     if(is.null(layout)) layout <- c(n.groups.root, n.groups.root)
+#     par(mfrow = layout)
+#     for(i in 1:n.groups){
+#       # reference: Chen & Swallow
+#       if(all(x.lst[[i]]$n==1)) {
+#         xmn <- as.list(by(x.lst[[i]]$x, x.lst[[i]]$m, function(x) c(sum(x),length(x))))
+#         m <- as.numeric(names(xmn))
+#         xx <- sapply(xmn,function(x) x[1])
+#         n <- sapply(xmn,function(x) x[2])
+#       } else {
+#         xx <- x.lst[[i]]$x
+#         m <- x.lst[[i]]$m
+#         n <- x.lst[[i]]$n
+#       }
+#       y <- log((xx+0.5)/(n+0.5))
+#       cc <- lm(y ~ m)
+#       plot(m,y,xlab="Pool Size",ylab="log((x+0.5)/(n+0.5))",...)
+#       if(refline) abline(cc)
+#       #if(printR2) cat(paste("R-squared for diagnostic line fit =",round(summary(cc)$r.squared,4),"\n"))
+#       #if(printR2) title(expression(paste(names(x)[[i]],"\n(",plain(R)^2,"=",round(summary(cc)$r.squared,2),")")),cex=0.75)
+#       #if(printR2) title(bquote(atop(.(names(x)[[i]]),"(" ~ R^2 ~ "=" ~ .(round(summary(cc)$r.squared,2)) ~ ")")), cex = 0.75)
+#       if(printR2) title(bquote(.(names(x)[[i]]) ~ ":" ~ R^2 ~ "=" ~ .(round(summary(cc)$r.squared,2))), cex = 0.75)
+#       else title(names(x)[[i]],cex=0.75)
+#     }
+#     invisible(x)
+#   }

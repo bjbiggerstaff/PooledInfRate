@@ -1,12 +1,14 @@
 \name{summary.pooledBin}
 \alias{summary.pooledBin}
 \alias{summary.pIR}
-\alias{summary.pooledBinList}
-\alias{summary.pIRList}
+%\alias{summary.pooledBinList}
+%\alias{summary.pIRList}
 \alias{print.summary.pooledBin}
-\alias{print.summary.pooledBinList}
+%\alias{print.summary.pooledBinList}
 \alias{print.summary.pIR}
-\alias{print.summary.pIRList}
+%\alias{print.summary.pIRList}
+\alias{[.summary.pooledBin}
+\alias{[.summary.pIR}
 
 \title{
 Summarize a pooledBin/pIR or pooledBinList/pIRList objects
@@ -20,19 +22,28 @@ The functions provide more detail underlying the results from pooledBin/pIR
 
 \method{print}{summary.pooledBin}(x, ...)
 \method{print}{summary.pIR}(x, ...)
-\method{print}{summary.pooledBinList}(x, ...)
-\method{print}{summary.pIRList}(x, ...)
+%\method{print}{summary.pooledBinList}(x, ...)
+%\method{print}{summary.pIRList}(x, ...)
+
+\method{[}{summary.pooledBin}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
+\method{[}{summary.pIR}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 
 }
 
 \arguments{
-  \item{object}{an object of class \code{pooledBin}/\code{pIR} or \code{pooledBinList}/\code{pIRList}}
+  \item{object}{an object of class \code{pooledBin}/\code{pIR}}
   \item{\dots}{for additional arguments}
-  \item{x}{an object of class \code{summary.pooledBin}/\code{summary.pIR}} or \code{summary.pooledBinList}/\code{summary.pIRList}
+  \item{x}{an object of class \code{summary.pooledBin}/\code{summary.pIR}}
+  \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
+
+  \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
 }
 
 \details{
 In addition to the estimates and confidence intervals, details including the total number of individuals included, the number of pools, and the number of "positive" pools are given.  Printing the result reports these, along with which point and confidence interval methods were used and the call.
+
+The subsetting or extractor functions \code{[.pooledBin} and \code{[.pIR} mimic the same \code{[} behavior as with data frames.
+
 }
 
 \value{

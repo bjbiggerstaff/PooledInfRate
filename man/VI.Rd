@@ -5,14 +5,16 @@
 \alias{VI}
 \alias{VI.default}
 \alias{VI.formula}
-\alias{vectorIndexList}
-\alias{VIList}
+%\alias{vectorIndexList}
+%\alias{VIList}
 \alias{vectorIndex.default}
 \alias{VI.default}
 \alias{print.vectorIndex}
 \alias{print.VI}
-\alias{print.vectorIndexList}
-\alias{print.VIList}
+%\alias{print.vectorIndexList}
+%\alias{print.VIList}
+\alias{[.vectorIndex}
+\alias{[.VI}
 
 \title{
 Compute the Vector Index from pooled/group testing data
@@ -51,10 +53,13 @@ VI(x, \dots)
  scale = 1, alpha = 0.05, tol = .Machine$double.eps^0.5, \dots)
 
 \method{print}{vectorIndex}(x, \dots)
-\method{print}{vectorIndexList}(x, \dots)
+%\method{print}{vectorIndexList}(x, \dots)
 
 \method{print}{VI}(x, \dots)
-\method{print}{VIList}(x, \dots)
+%\method{print}{VIList}(x, \dots)
+
+\method{[}{vectorIndex}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
+\method{[}{VI}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 
 }
 \arguments{
@@ -86,6 +91,11 @@ VI(x, \dots)
   \item{alpha}{ a single numeric, specifying the type-I-error level; confidence level is 100(1-alpha)\%}
 
   \item{tol}{accuracy required for iterations in internal functions}
+
+  \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
+
+  \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
+
 
   \item{\dots}{future arguments}
 

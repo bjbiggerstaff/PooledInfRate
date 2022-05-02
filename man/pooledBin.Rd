@@ -7,16 +7,14 @@
 \alias{pIR.formula}
 \alias{print.pooledBin}
 \alias{print.pIR}
-\alias{print.pooledBinList}
-\alias{print.pIRList}
+%\alias{print.pooledBinList}
+%\alias{print.pIRList}
 \alias{plot.pooledBin}
 \alias{plot.pIR}
-\alias{plot.pooledBinList}
-\alias{plot.pIRList}
-\alias{as.data.frame.pooledBin}
-\alias{as.data.frame.pooledBinList}
-\alias{as.data.frame.pIR}
-\alias{as.data.frame.pIRList}
+%\alias{plot.pooledBinList}
+%\alias{plot.pIRList}
+\alias{[.pooledBin}
+\alias{[.pIR}
 
 \title{
 Estimates for a proportion from pooled/group testing
@@ -53,18 +51,17 @@ pIR(x, \dots)
 
 
 \method{print}{pooledBin}(x, \dots)
-\method{print}{pooledBinList}(x, \dots)
-\method{plot}{pooledBin}(x, pch=16, refline=TRUE, printR2=TRUE,\dots)
-\method{plot}{pooledBinList}(x, pch=16, refline=TRUE, printR2=TRUE,layout=NULL,\dots)
-\method{as.data.frame}{pooledBin}(x, row.names = NULL, optional = FALSE, \dots)
-\method{as.data.frame}{pooledBinList}(x, row.names = NULL, optional = FALSE, \dots)
+%\method{print}{pooledBinList}(x, \dots)
+\method{plot}{pooledBin}(x, pch=16, refline=TRUE, printR2=TRUE,layout=NULL,\dots)
+%\method{plot}{pooledBinList}(x, pch=16, refline=TRUE, printR2=TRUE,layout=NULL,\dots)
+\method{[}{pooledBin}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 
 \method{print}{pIR}(x, \dots)
-\method{print}{pIRList}(x, \dots)
-\method{plot}{pIR}(x, pch=16, refline=TRUE, printR2=TRUE,\dots)
-\method{plot}{pIRList}(x, pch=16, refline=TRUE, printR2=TRUE, layout=NULL,\dots)
-\method{as.data.frame}{pIR}(x, row.names = NULL, optional = FALSE, \dots)
-\method{as.data.frame}{pIRList}(x, row.names = NULL, optional = FALSE, \dots)
+%\method{print}{pIRList}(x, \dots)
+\method{plot}{pIR}(x, pch=16, refline=TRUE, printR2=TRUE,layout=NULL,\dots)
+%\method{plot}{pIRList}(x, pch=16, refline=TRUE, printR2=TRUE, layout=NULL,\dots)
+\method{[}{pIR}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
+%\method{rame}{pIRList}(x, row.names = NULL, optional = FALSE, \dots)
 
 
 
@@ -101,9 +98,9 @@ pIR(x, \dots)
 
   \item{layout}{2-element, \code{c(row, col)}, numeric vector for the layout of the plots for multiple groups.  Default is NULL, for which a layout is computed}
 
-  \item{row.names}{\code{NULL} or a character vector giving the row names for the data frame. Missing values are not allowed.}
+  \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
 
-  \item{optional}{logical. If \code{TRUE}, setting row names and converting column names (to syntactic names: see make.names) is optional. Note that all of R's base package \code{as.data.frame()} methods use optional only for column names treatment, basically with the meaning of \code{data.frame(*, check.names = !optional)}.}
+  \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
 
 }
 
@@ -138,11 +135,15 @@ Calls with \code{formula} with other than the detailed formula structures, \emph
 
 Point estimation: bias preventative ("firth") and bias corrected ("gart") estimators are recommended, with details described in Hepworth G, Biggerstaff BJ (2017). Use of MLE (\code{"mle"}), and MIR (\code{"mir"}) estimators are not recommended, but their computation is provided for historical reasons.
 
-Confidence intervals: All confidence intervals are based on asymptotic methods.  Score-based intervals are recommended, with the skewness-corrected score interval showing geenerally best performance and so is the default (see Hepworth (2005) or Biggerstaff (2008)).  The likelihood ratio test-based confidence interval is also included, as are the Wald interval and an interval based in the MIR.  Note that the methods "mir" and "wald" cannot be recommended, because they return too narrow intervals in relevant situations, "mir" because it ignores the pooling, and "wald" because it relies on simple large sample methods. For computational details and simulation results of the methods, see Hepworth (2005) and Biggerstaff (2008).}
+Confidence intervals: All confidence intervals are based on asymptotic methods.  Score-based intervals are recommended, with the skewness-corrected score interval showing geenerally best performance and so is the default (see Hepworth (2005) or Biggerstaff (2008)).  The likelihood ratio test-based confidence interval is also included, as are the Wald interval and an interval based in the MIR.  Note that the methods "mir" and "wald" cannot be recommended, because they return too narrow intervals in relevant situations, "mir" because it ignores the pooling, and "wald" because it relies on simple large sample methods. For computational details and simulation results of the methods, see Hepworth (2005) and Biggerstaff (2008).
+
+The subsetting or extractor functions \code{[.pooledBin} and \code{[.pIR} mimic the same \code{[} behavior as with data frames.
+
+}
 
 
 \value{
-A object of class 'pooledBin' ('pIR') or, if more than one group, of class 'pooledBinList' ('pIRList').  These have a list structure with elements
+A object of class 'pooledBin' ('pIR').  These have a list structure with elements
 
 \item{p}{the estimated proportion}
 \item{lcl}{the lower confidence limit}

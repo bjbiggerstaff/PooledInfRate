@@ -7,8 +7,8 @@
 \alias{pIRDiff.formula}
 \alias{print.pooledBinDiff}
 \alias{print.pIRDiff}
-\alias{as.data.frame.pooledBinDiff}
-\alias{as.data.frame.pIRDiff}
+\alias{[.pooledBinDiff}
+\alias{[.pIRDiff}
 
 \title{
 Confidence intervals for the difference of proportions
@@ -44,10 +44,10 @@ pIRDiff(x, \dots)
  scale = 1, alpha = 0.05, tol = .Machine$double.eps^0.5, \dots)
 
 \method{print}{pooledBinDiff}(x, \dots)
-\method{as.data.frame}{pooledBinDiff}(x, row.names = NULL, optional = FALSE, \dots)
+\method{[}{pooledBinDiff}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 
 \method{print}{pIRDiff}(x, \dots)
-\method{as.data.frame}{pIRDiff}(x, row.names = NULL, optional = FALSE, \dots)
+\method{[}{pIRDiff}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 
 
 }
@@ -80,9 +80,9 @@ pIRDiff(x, \dots)
 
   \item{tol}{accuracy required for iterations in internal functions}
 
-  \item{row.names}{\code{NULL} or a character vector giving the row names for the data frame. Missing values are not allowed.}
+  \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
 
-  \item{optional}{logical. If \code{TRUE}, setting row names and converting column names (to syntactic names: see make.names) is optional. Note that all of R's base package \code{as.data.frame()} methods use optional only for column names treatment, basically with the meaning of \code{data.frame(*, check.names = !optional)}.}
+  \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
 
   \item{\dots}{future arguments}
 
@@ -96,7 +96,11 @@ Differences in proportions are computed as detailed in Biggerstaff (2008).  All 
 
 As with estimation for groups indivdiually, point estimation: bias preventative ("firth") and bias corrected ("gart") estimators are recommended, with details described in Hepworth G, Biggerstaff BJ (2017). Use of MLE (\code{"mle"}), and MIR (\code{"mir"}) estimators is not recommended.
 
-Confidence intervals: Note, that the methods "mir" and "wald" can not be recommended, because they return too narrow intervals in relevant situations, "mir" because it ignores the pooling, and "wald" because it relies on simple large sample methods. For computational details and simulation results of the remaining methods, see Biggerstaff (2008).}
+Confidence intervals: Note, that the methods "mir" and "wald" can not be recommended, because they return too narrow intervals in relevant situations, "mir" because it ignores the pooling, and "wald" because it relies on simple large sample methods. For computational details and simulation results of the remaining methods, see Biggerstaff (2008).
+
+The subsetting or extractor functions \code{[.pooledBin} and \code{[.pIR} mimic the same \code{[} behavior as with data frames.
+
+}
 
 \value{
 A list with elements

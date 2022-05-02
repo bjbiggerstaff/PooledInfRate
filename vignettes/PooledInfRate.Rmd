@@ -79,7 +79,6 @@ with(mosq.dat, pIR(Pos, PoolSize))
 
 When there is a grouping variable, as with the <tt>mosq.dat</tt> data set, an optional <tt>group=</tt> may be used to obtain individual results for each group:
 ```{r}
-cat("TEST\n")
 pooledBin(Pos~PoolSize|Species,mosq.dat)
 with(mosq.dat, pooledBin(Pos, PoolSize, group = Species))
 ```
@@ -114,6 +113,27 @@ pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 # and use the (significant) 'digits' argument of print() to make for easier reading
 print(pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat), digits = 3)
 ```
+
+###### Access results
+
+Beginning with package version 1.1, returned objects of class <tt>pooledBin</tt>/<tt>pIR</tt> can be accessed like data frames, using both <tt>[.</tt> and <tt>$</tt> extractor methods.  Examples are
+```{r}
+# original call
+pooledBin(Pos ~ PoolSize | Zone, mosq.dat)
+
+# just Zone 2
+pooledBin(Pos ~ PoolSize | Zone, mosq.dat)[2,]
+
+# just P
+pooledBin(Pos ~ PoolSize | Zone, mosq.dat)[,"P"]
+pooledBin(Pos ~ PoolSize | Zone, mosq.dat)$P
+
+# assign and just CIs
+pb.out <-  pooledBin(Pos ~ PoolSize | Zone, mosq.dat)
+pb.out[,3:4]
+pb.out[c("Lower","Upper")]
+```
+
 
 #### Summary and plot methods
 
@@ -203,6 +223,27 @@ mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat, scale=1000) # scale for
 ## Print fewer digits for easier reading 
 print(summary(mdiff.out), digits = 3) 
 ```
+
+###### Access results
+
+Beginning with package version 1.1, returned objects of class <tt>pooledBinDiff</tt>/<tt>pIRDiff</tt> can be accessed like data frames, using both <tt>[.</tt> and <tt>$</tt> extractor methods.  Examples are
+```{r}
+# original call
+pooledBinDiff(Pos ~ PoolSize | Species, mosq.dat)
+
+# just the Culex pipiens - Culex quinquefaciatus comparison
+pooledBinDiff(Pos ~ PoolSize | Species, mosq.dat)[2,]
+
+# just the differences 
+pooledBinDiff(Pos ~ PoolSize | Species, mosq.dat)[,"Diff"]
+pooledBinDiff(Pos ~ PoolSize | Species, mosq.dat)$Diff
+
+# assign and just CIs
+pbd.out <-  pooledBinDiff(Pos ~ PoolSize | Species, mosq.dat)
+pbd.out[,3:4]
+pbd.out[c("Lower","Upper")]
+```
+
 #### Missing data
 
 As with the one-sample functions, records with missing data on any of the variables used in the function calls are removed for estimation.
@@ -301,6 +342,22 @@ VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat,
                                      n.use.traps = TRUE, n.use.na = TRUE)
 summary(VI(Pos ~ PoolSize + n(NumPools) / Species:TrapNights, vi.dat, 
                                      n.use.traps = TRUE, n.use.na = TRUE))
+```
+
+
+###### Access results
+
+Beginning with package version 1.1, returned objects of class <tt>vectorIndex</tt>/<tt>VI</tt> can be accessed like data frames, using both <tt>[.</tt> and <tt>$</tt> extractor methods.  Examples are
+```{r}
+# original call
+VI(Pos ~ PoolSize | Zone / Species, mosq.dat)
+
+# just Zone 2
+VI(Pos ~ PoolSize | Zone / Species, mosq.dat)[2,]
+
+# just the VIs
+VI(Pos ~ PoolSize | Zone / Species, mosq.dat)[["VI"]]
+VI(Pos ~ PoolSize | Zone / Species, mosq.dat)$VI
 ```
 
 ###### Options

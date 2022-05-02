@@ -2,7 +2,9 @@
 \alias{summary.pooledBinDiff}
 \alias{summary.pIRDiff}
 \alias{print.summary.pooledBinDiff}
+\alias{[.summary.pooledBinDiff}
 \alias{print.summary.pIRDiff}
+\alias{[.summary.pIRDiff}
 
 \title{
 Summarize \code{pooledBinDiff}/\code{pIRDiff} objects
@@ -15,7 +17,9 @@ The functions provide more detail underlying the results from pooledBinDiff/pIRD
 \method{summary}{pIRDiff}(object, scale = attr(x, "scale"), ...)
 
 \method{print}{summary.pooledBinDiff}(x, \dots)
+\method{[}{summary.pooledBinDiff}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 \method{print}{summary.pIRDiff}(x, \dots)
+\method{[}{summary.pIRDiff}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
 }
 
 
@@ -23,13 +27,20 @@ The functions provide more detail underlying the results from pooledBinDiff/pIRD
   \item{object}{object of class \code{pooledBinDiff} or \code{pIRDiff} }
   \item{scale}{the scale to report the results in, with default the scale passed by the object}
   \item{x}{object of class \code{summary.pooledBinDiff}/\code{summary.pIRDiff}}
+    \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
+
+  \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
   \item{\dots}{future arguments}
 }
 
 
 \details{
 In addition to the estimates and confidence intervals for the difference, details for the indivdiual gropus including the total number of individuals included, the number of pools, and the number of "positive" pools are given.  Printing the result reports these, along with which point and confidence interval methods were used and the call.
+
+The subsetting or extractor functions \code{[.pooledBin} and \code{[.pIR} mimic the same \code{[} behavior as with data frames.
+
 }
+
 \value{
 The original \code{pooledBinDiff}/\code{pIRDiff} object with additional list elements
 
