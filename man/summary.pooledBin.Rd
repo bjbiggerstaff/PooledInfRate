@@ -1,12 +1,8 @@
 \name{summary.pooledBin}
 \alias{summary.pooledBin}
 \alias{summary.pIR}
-%\alias{summary.pooledBinList}
-%\alias{summary.pIRList}
 \alias{print.summary.pooledBin}
-%\alias{print.summary.pooledBinList}
 \alias{print.summary.pIR}
-%\alias{print.summary.pIRList}
 \alias{[.summary.pooledBin}
 \alias{[.summary.pIR}
 
@@ -17,8 +13,8 @@ Summarize a pooledBin/pIR or pooledBinList/pIRList objects
 The functions provide more detail underlying the results from pooledBin/pIR
 }
 \usage{
-\method{summary}{pooledBin}(object, ...)
-\method{summary}{pIR}(object, ...)
+\method{summary}{pooledBin}(object, simple = FALSE, ...)
+\method{summary}{pIR}(object, simple = FALSE, ...)
 
 \method{print}{summary.pooledBin}(x, ...)
 \method{print}{summary.pIR}(x, ...)
@@ -34,6 +30,7 @@ The functions provide more detail underlying the results from pooledBin/pIR
   \item{object}{an object of class \code{pooledBin}/\code{pIR}}
   \item{\dots}{for additional arguments}
   \item{x}{an object of class \code{summary.pooledBin}/\code{summary.pIR}}
+  \item{simple}{logical.  If TRUE return a data frame with estimates, confidence intervals, total number of individuals, number of positive pools, and scale, by group; if FALSE return a more complete description of the call.}
   \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
 
   \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}

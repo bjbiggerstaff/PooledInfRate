@@ -1,6 +1,5 @@
 \name{summary.ipooledBin}
 \alias{summary.ipooledBin}
-\alias{summary.ipooledBinList}
 \alias{print.summary.ipooledBin}
 \alias{[.summary.ipooledBin}
 

@@ -761,7 +761,7 @@
 #     invisible(x)
 #   }
 
-"summary.pooledBin" <- function(object, ...){
+"summary.pooledBin" <- function(object, simple = FALSE, ...){
   grp.names <- as.character(attr(object,"group.names"))
   "sumf" <- function(x) c(x, N = sum(x$n * x$m), NumPools = sum(x$n), NumPosPools = sum(x$x),
                           PtEstName = x$pt.method,
@@ -777,18 +777,20 @@
                     PointEst = rep(0,n),
                     Lower = rep(0,n),
                     Upper = rep(0,n),
+                    Scale = rep(1,n),
                     N = rep(0,n),
                     NumPools = rep(0,n),
-                    NumPosPools = rep(0,n),
-                    Scale = rep(1,n))
+                    NumPosPools = rep(0,n))
   #if(!is.null(attr(object,"group.var"))) names(ans)[1] <- attr(object,"group.var")
   if(attr(object,"group.var") != "") names(ans)[1] <- attr(object,"group.var")
 
   for(i in 1:n)
-    ans[i,2:8] <- c(out[[i]]$scale * c(out[[i]]$p, out[[i]]$lcl,out[[i]]$ucl),
-                    out[[i]]$N, out[[i]]$NumPools, out[[i]]$NumPosPools, out[[i]]$scale)
+    ans[i,2:8] <- c(out[[i]]$scale * c(out[[i]]$p, out[[i]]$lcl,out[[i]]$ucl), out[[i]]$scale,
+                    out[[i]]$N, out[[i]]$NumPools, out[[i]]$NumPosPools)
 
   if(attr(object,"n.groups") == 1) ans$Group <- NULL
+
+  if(simple) return(ans)
 
   structure(ans, class = "summary.pooledBin",
             df = as.data.frame(unclass(ans)),

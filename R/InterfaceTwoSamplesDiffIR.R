@@ -637,7 +637,7 @@
 #     as.data.frame(mat)
 #   }
 
-"summary.pIRDiff" <- function(object, scale=attr(x,"scale"), ...){
+"summary.pIRDiff" <- function(object, simple = FALSE, ...){
   x <- attr(object,"fullList")
   args <- list(...)
   if(is.null(args$digits)) digits <- 4
@@ -675,7 +675,7 @@
   names(grp.pb)[1] <- attr(object,"group.var")
   rownames(grp.pb) <- 1:nrow(grp.pb)
 
-
+  if(simple) return(grp.pb)
 
   #cat("\nCall: ", deparse(x$call), "\n\n")
   structure(object, class="summary.pIRDiff", df=object, grp.pooledBin = grp.pb, PtEstName = PtEstName, CIEstName = CIEstName,

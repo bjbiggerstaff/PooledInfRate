@@ -1730,7 +1730,7 @@
 
 }
 
-"print.summary.vectorIndex" <- function(x, digits = 4, ...){
+"print.summary.vectorIndex" <- function(x, ...){
   nGroups <- x$nGroups
   nVectors <- x$nVectors
   if(nGroups > 1){
@@ -1777,7 +1777,7 @@
 
 }
 
-"print.summary.VI" <- function(x, digits = 4, ...){
+"print.summary.VI" <- function(x, ...){
   nGroups <- x$nGroups
   nVectors <- x$nVectors
   if(nGroups > 1){

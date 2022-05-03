@@ -149,6 +149,13 @@ pir.mosq.out <- pIR(Pos ~ PoolSize | Species, mosq.dat)
 print(summary(pir.mosq.out), digits=3)
 ```
 
+Further, the <tt>summary</tt> methods have an argument <tt> simple </tt> that can be used to return the detailed results as a data frame.  To return the summary data frame, set <tt> simple = TRUE </tt> (default is <tt> simple = FALSE </tt>):
+```{r}
+summary(pir.mosq.out)
+
+summary(pir.mosq.out, simple = TRUE)
+```
+
 A plot method of the diagnostic tool described by @CheSwa1990 to evaluate the suitability of the binomial model is available.
 ```{r fig.cap="Binomial model diagnostic plot of Chen and Swallow (1990)"}
 plot(pir.combined.out)
@@ -220,8 +227,11 @@ pooledBinDiff(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 
 mdiff.out <- pIRDiff(Pos ~ PoolSize | Species, mosq.dat, scale=1000) # scale for easier interpretation
 
-## Print fewer digits for easier reading 
+# Print fewer digits for easier reading 
 print(summary(mdiff.out), digits = 3) 
+
+# as with the one-sample results, one can return the detailed summary as a data frame
+summary(mdiff.out, simple = TRUE)
 ```
 
 ###### Access results

@@ -66,9 +66,11 @@
       for (i in 1:nGroups) ans[i, 2:3] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p, 1)
       if (all(ans$Scale == 1)) ans$Scale <- NULL
 
+
       if(nGroups == 1) ans$Group <- NULL
 
-      ans <- structure(ans, class = "ipooledBin", fullList = ans.lst, group.names = groups, group.var = group.var,
+      ans <- structure(ans, class = "ipooledBin", fullList = ans.lst, groups= groups, group.var = group.var,
+                       n.groups = nGroups,
                        x=x,m=m,n=n,
                        sens=sens,spec=spec,scale = scale, pt.method=pt.method,call=call)
 
@@ -155,6 +157,7 @@
       ans <- data.frame(Group = groups,
                         P = rep(0,  nGroups),
                         Scale = rep(scale, nGroups))
+
       if(group.var != "") names(ans)[1] <- group.var
 
       for (i in 1:nGroups) ans[i, 2:3] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p, 1)
@@ -162,7 +165,9 @@
 
       if(nGroups == 1) ans$Group <- NULL
 
-      ans <- structure(ans, class = "ipooledBin", fullList = ans.lst, group.names = groups, group.var = group.var,
+
+      ans <- structure(ans, class = "ipooledBin", fullList = ans.lst, groups = groups, group.var = group.var,
+                       n.groups = nGroups,
                        x=x,m=m,n=n,
                        sens=sens,spec=spec,scale = scale, pt.method=pt.method,call=call)
 
@@ -252,7 +257,7 @@
 
 
 "summary.ipooledBin" <- function(object, ...){
-  grp.names <- as.character(attr(object,"group.names"))
+  groups  <- attr(object,"groups")
   "sumf" <- function(x) c(P=x$p,N = sum(x$n * x$m), NumPools = sum(x$n), NumPosPools = sum(x$x))
   out <- lapply(attr(object,"fullList"), sumf)
   #attributes(out) <- list(class = "summary.pooledBinList", names = attr(object,"names"),group.var = attr(object,"group.var"))
@@ -260,7 +265,9 @@
   #                        names = grp.names,group.var = attr(object,"group.var"))
 
   structure(out, class = "summary.ipooledBin",
-            names = grp.names,group.var = attr(object,"group.var"),
+            n.groups = attr(object,"n.groups"),
+            groups = groups,
+            group.var = attr(object,"group.var"),
             scale = attr(object,"scale"),
                        x=attr(object,"x"),m=attr(object,"m"),n=attr(object,"n"),
             sens = attr(object,"sens"),
@@ -271,15 +278,17 @@
 
 "print.summary.ipooledBin" <- function(x, ...){
   n <- length(x)
-  out <- data.frame(Group = names(x),
+  out <- data.frame(Group = attr(x,"groups"),
                     PointEst = rep(0,n),
                     N = rep(0,n),
                     NumPools = rep(0,n),
                     NumPosPools = rep(0,n),
                     Scale = rep(1,n))
-  if(!is.null(attr(x,"group.var"))) names(out)[1] <- attr(x,"group.var")
+  if(attr(x,"n.groups") != 1) names(out)[1] <- attr(x,"group.var")
   for(i in 1:n)
     out[i,2:6] <- c(attr(x,"scale") * x[[i]][["P"]], x[[i]][["N"]], x[[i]][["NumPools"]], x[[i]][["NumPosPools"]], attr(x,"scale"))
+
+  if(attr(x,"n.groups") == 1) out$Group <- NULL
 
   #if(is.null(digits)) digits <- 4
   #else digits <- args$digits

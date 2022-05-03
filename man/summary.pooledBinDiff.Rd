@@ -13,8 +13,8 @@ Summarize \code{pooledBinDiff}/\code{pIRDiff} objects
 The functions provide more detail underlying the results from pooledBinDiff/pIRDIff
 }
 \usage{
-\method{summary}{pooledBinDiff}(object, scale = attr(x, "scale"), ...)
-\method{summary}{pIRDiff}(object, scale = attr(x, "scale"), ...)
+\method{summary}{pooledBinDiff}(object, simple = FALSE, ...)
+\method{summary}{pIRDiff}(object, simple = FALSE, ...)
 
 \method{print}{summary.pooledBinDiff}(x, \dots)
 \method{[}{summary.pooledBinDiff}(x, i, j, drop = if (missing(i)) TRUE else length(cols) ==  1)
@@ -25,8 +25,9 @@ The functions provide more detail underlying the results from pooledBinDiff/pIRD
 
 \arguments{
   \item{object}{object of class \code{pooledBinDiff} or \code{pIRDiff} }
-  \item{scale}{the scale to report the results in, with default the scale passed by the object}
   \item{x}{object of class \code{summary.pooledBinDiff}/\code{summary.pIRDiff}}
+    \item{simple}{logical.  If TRUE return a data frame with estimates, confidence intervals, total number of individuals, number of positive pools, and scale, by group; if FALSE return a more complete description of the call.}
+
     \item{i,j}{elements to extract or replace. For [ and [[, these are numeric or character or, for [ only, empty or logical. Numeric values are coerced to integer as if by as.integer.}
 
   \item{drop}{logical. If TRUE the result is coerced to the lowest possible dimension. The default is to drop if only one column is left, but not to drop if only one row is left.}
