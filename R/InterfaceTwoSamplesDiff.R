@@ -162,9 +162,6 @@
     # this is really just to have the individual results to pass on to the summary.pooledBin() function
     for(i in 1:nGroups){
       grp <- group == groups[i]
-      #ans.grp[[i]] <- pooledBin.default(x[grp],m[grp],n[grp],
-      #                                  pt.method=pt.method,ci.method=ci.method,
-      #                                  scale=scale,alpha=alpha,tol=tol)
       ans.grp[[i]] <- pooledBin.fit(x[grp],m[grp],n[grp],
                                         pt.method=pt.method,ci.method=ci.method,
                                         scale=scale,alpha=alpha,tol=tol)
@@ -221,63 +218,16 @@
               scale=scale, nComparisons = nComparisons, comparisonNames = comparisonNames, grp.pooledBin = ans.grp, group.var = vars$group,
               group.names=groups, scale=scale, call=call)
 
-    #structure(list(d=d,lcl=ci.d[1],ucl=ci.d[2],pt.method=pt.method,ci.method=ci.method,alpha=alpha,
-    #               scale=scale,x1=x1,m1=m1,n1=n1,x2=x2,m2=m2,n2=n2,call=call),class="pooledBinDiff")
   }
 
 
-
-# "print.pooledBinDiff" <-
-#   function(x, ...){
-#     args <- list(...)
-#     if(is.null(attr(x,"scale"))) scale <- 1
-#       else scale <- attr(x,"scale")
-#     if(is.null(args$digits)) digits <- 4
-#     else digits <- args$digits
-#     nComparisons <- attr(x, "nComparisons")
-#     if(is.null(nComparisons)) nComparisons <- 1
-#     comparisonNames <- attr(x,"comparisonNames")
-#     if(nComparisons == 1){
-#       #if(scale != x$scale) scale <- x$scale
-#       #d <- round(scale*x$d,digits)
-#       #lcl <- round(scale*x$lcl, digits)
-#       #ucl <- round(scale*x$ucl, digits)
-#       d <- scale*x$d
-#       lcl <- scale*x$lcl
-#       ucl <- scale*x$ucl
-#       mat <- matrix(c(d,lcl,ucl,scale),nrow=1)[,,drop=FALSE] # really to match Hmisc's binconf()
-#       dimnames(mat) <- list(c(""),c("Diff","Lower","Upper","Scale"))
-#       mat <- as.data.frame(mat)
-#       mat$Comparison <- comparisonNames
-#       mat <- mat[,c(5,1:4)]
-#       if(scale == 1) mat <- mat[,-5]
-#       print(mat,...)
-#     } else {
-#       #if(scale != scale) scale <- x[[1]]$scale
-#       #d <- round(scale*sapply(x,function(x) x$d),digits)
-#       #lcl <- round(scale*sapply(x,function(x) x$lcl), digits)
-#       #ucl <- round(scale*sapply(x,function(x) x$ucl), digits)
-#       d <- scale*sapply(x,function(x) x$d)
-#       lcl <- scale*sapply(x,function(x) x$lcl)
-#       ucl <- scale*sapply(x,function(x) x$ucl)
-#       mat <- cbind(d,lcl,ucl,scale)
-#       #mat <- matrix(c(d,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
-#       dimnames(mat) <- list(rep(c(""),nComparisons),c("Diff","Lower","Upper","Scale"))
-#       mat <- as.data.frame(mat)
-#       mat$Comparison <- comparisonNames
-#       mat <- mat[,c(5,1:4)]
-#       if(scale == 1) mat <- mat[,-5]
-#       rownames(mat) <- NULL
-#       print(mat,...)
-#     }
-#
-#     invisible(x)
-#   }
 
 "print.pooledBinDiff" <- function(x, ...){
   print(as.data.frame(unclass(x)),...)
   invisible(x)
 }
+
+
 # to build the package, had to use a version of "[.data.frame" without the .Internal(copyDFattr(xx,x)) call
 # this just copied x as a list along with the attributes of the data frame
 #"[.pooledBinDiff" <- subsetDF #get("[.data.frame")
@@ -591,52 +541,6 @@
 
 
 
-
-# "as.data.frame.pooledBinDiff" <-
-#   function(x, row.names = NULL, optional = FALSE, ...){
-#     args <- list(...)
-#     if(is.null(attr(x,"scale"))) scale <- 1
-#     else scale <- attr(x,"scale")
-#     if(is.null(args$digits)) digits <- 4
-#     else digits <- args$digits
-#     nComparisons <- attr(x, "nComparisons")
-#     if(is.null(nComparisons)) nComparisons <- 1
-#     comparisonNames <- attr(x,"comparisonNames")
-#     if(nComparisons == 1){
-#       #if(scale != x$scale) scale <- x$scale
-#       #d <- round(scale*x$d,digits)
-#       #lcl <- round(scale*x$lcl, digits)
-#       #ucl <- round(scale*x$ucl, digits)
-#       d <- scale*x$d
-#       lcl <- scale*x$lcl
-#       ucl <- scale*x$ucl
-#       mat <- matrix(c(d,lcl,ucl,scale),nrow=1)[,,drop=FALSE] # really to match Hmisc's binconf()
-#       dimnames(mat) <- list(c(""),c("Diff","Lower","Upper","Scale"))
-#       mat <- as.data.frame(mat)
-#       mat$Comparison <- comparisonNames
-#       mat <- mat[,c(5,1:4)]
-#       if(scale == 1) mat <- mat[,-5]
-#     } else {
-#       #if(scale != scale) scale <- x[[1]]$scale
-#       #d <- round(scale*sapply(x,function(x) x$d),digits)
-#       #lcl <- round(scale*sapply(x,function(x) x$lcl), digits)
-#       #ucl <- round(scale*sapply(x,function(x) x$ucl), digits)
-#       d <- scale*sapply(x,function(x) x$d)
-#       lcl <- scale*sapply(x,function(x) x$lcl)
-#       ucl <- scale*sapply(x,function(x) x$ucl)
-#       mat <- cbind(d,lcl,ucl,scale)
-#       #mat <- matrix(c(d,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
-#       dimnames(mat) <- list(rep(c(""),nComparisons),c("Diff","Lower","Upper","Scale"))
-#       mat <- as.data.frame(mat)
-#       mat$Comparison <- comparisonNames
-#       mat <- mat[,c(5,1:4)]
-#       if(scale == 1) mat <- mat[,-5]
-#       rownames(mat) <- NULL
-#     }
-#
-#     as.data.frame(mat)
-#   }
-
 "summary.pooledBinDiff" <- function(object, simple=FALSE, ...){
     x <- attr(object,"fullList")
     args <- list(...)
@@ -659,10 +563,6 @@
            "wald" = CIEstName <- "Wald",
            "mir" = CIEstName <- "Minimum Infection Rate"
     )
-    #p1 <- pooledBin(x$x1,x$m1,x$n1,scale=x$scale)
-    #p2 <- pooledBin(x$x2,x$m2,x$n2,scale=x$scale)
-    #summat <- matrix(c(scale*p1$p, scale*p1$lcl, scale*p1$ucl, scale, sum(x$n1 * x$m1), sum(x$n1), sum(x$x1),
-    #                   scale*p2$p, scale*p2$lcl, scale*p2$ucl, scale, sum(x$n2 * x$m2), sum(x$n2), sum(x$x2)), nrow=2,ncol=7, byrow=TRUE)
     grp.pooledBin <- attr(object, "grp.pooledBin")
     grp.pb <- t(sapply(grp.pooledBin,
                       function(x) c(x$scale*x$p, x$scale*x$lcl, x$scale*x$ucl, x$scale, sum(x$n * x$m), sum(x$n), sum(x$x))))
@@ -702,41 +602,6 @@
     comparisonNames <- attr(x,"comparisonNames")
 
     print(attr(x,"df"))
-
-
-    # if(nComparisons == 1){
-    #   if(scale != x$scale) scale <- x$scale
-    #   #d <- round(scale*x$d,digits)
-    #   #lcl <- round(scale*x$lcl, digits)
-    #   #ucl <- round(scale*x$ucl, digits)
-    #   d <- scale*x$d
-    #   lcl <- scale*x$lcl
-    #   ucl <- scale*x$ucl
-    #   mat <- matrix(c(d,lcl,ucl,scale),nrow=1)[,,drop=FALSE] # really to match Hmisc's binconf()
-    #   dimnames(mat) <- list(c(""),c("Diff","Lower","Upper","Scale"))
-    #   mat <- as.data.frame(mat)
-    #   mat$Comparison <- comparisonNames
-    #   mat <- mat[,c(5,1:4)]
-    #   if(scale == 1) mat <- mat[,-5]
-    #   print(mat,...)
-    # } else {
-    #   #if(scale != x[[1]]$scale) scale <- x[[1]]$scale
-    #   #d <- round(scale*sapply(x,function(x) x$d),digits)
-    #   #lcl <- round(scale*sapply(x,function(x) x$lcl), digits)
-    #   #ucl <- round(scale*sapply(x,function(x) x$ucl), digits)
-    #   d <- scale*sapply(x,function(x) x$d)
-    #   lcl <- scale*sapply(x,function(x) x$lcl)
-    #   ucl <- scale*sapply(x,function(x) x$ucl)
-    #   mat <- cbind(d,lcl,ucl,scale)
-    #   #mat <- matrix(c(d,lcl,ucl,scale),nrow=1) # really to match Hmisc's binconf()
-    #   dimnames(mat) <- list(rep(c(""),nComparisons),c("Diff","Lower","Upper","Scale"))
-    #   mat <- as.data.frame(mat)
-    #   mat$Comparison <- comparisonNames
-    #   mat <- mat[,c(5,1:4)]
-    #   if(scale == 1) mat <- mat[,-5]
-    #   rownames(mat) <- NULL
-    #   print(mat,...)
-    # }
 
     cat("\n")
     cat("Group summaries:\n\n")

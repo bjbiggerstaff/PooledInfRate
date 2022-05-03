@@ -52,9 +52,6 @@
                               call=call)
       }
 
-     #if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
-     # else group.var <- "Group"
-
       ans.lst <- ans
 
       ans <- data.frame(Group = groups,
@@ -142,15 +139,9 @@
         ans[[i]] <- list(p=tmp.p,x=x[group==groups[i]],
                               m=m[group==groups[i]],
                               n=n[group==groups[i]],scale=scale,class="ipooledBIn",call=call)
-        #class(ans[[i]]) <- "ipooledBin"
-        #attributes(ans[[i]]) <- list(class="pooledBin",call=call)
-        #attr(ans[[i]],"call") <- call
 
       }
 
-
-      #if(class(substitute(group)) == "name") group.var <- deparse(substitute(group))
-      #else group.var <- "Group"
 
       ans.lst <- ans
 
@@ -173,88 +164,14 @@
 
       ans
 
-      #names(ans) <- groups
-      #ans <- structure(ans, class = "ipooledBin", group.names = groups,
-      #                 x.var = vars$x, m.var = vars$m, n.var = vars$n, group.var = vars$group,
-      #                 x=x,m=m,n=n,
-      #                 scale = scale, sens=sens,spec=spec,pt.method = pt.method,call = call)
-#
-#    ans
-
   }
 
 
 
 "print.ipooledBin" <- function(x, ...){
-    # args <- list(...)
-    # if(is.null(scale)) scale <- 1
-    # if(is.null(args$digits)) digits <- 4
-    # else digits <- args$digits
-    # p <- round(scale*x,digits)
-    # mat <- matrix(c(p,scale),nrow=1) # really to match Hmisc's binconf()
-    # dimnames(mat) <- list(c(""),c("P","Scale"))
-    # if(scale == 1) mat <- mat[,-2,drop=FALSE]
-    # print(mat,...)
-    # invisible(x)
     print(as.data.frame(unclass(x)),...)
     invisible(x)
   }
-
-# "print.ipooledBinList" <- function(x, ...){
-#     n <- length(x)
-#     out <- data.frame(Group = attr(x,"group.names"),
-#                       PointEst = rep(0,n),
-#                       Scale = rep(1,n))
-#     if(!is.null(attr(x,"group.var"))) names(out)[1] <- attr(x,"group.var")
-#     for(i in 1:n){
-#       out[i,2:3] <-  attr(x,"scale") * c(x[[i]], 1)
-#     }
-#     if(all(out$Scale == 1)) out$Scale <- NULL # if scale = 1, don't bother printing (do print in summary, though)
-#     print(out,...)
-#     invisible(x)
-#   }
-
-
-#
-# "summary.ipooledBin" <-
-#   function(object, ...){
-#     x <- object
-#     args <- list(...)
-#     scale <- attr(x,"scale")
-#     structure(x,class="summary.ipooledBin",scale=scale,
-#                        x=attr(x,"x"),m=attr(x,"m"),n=attr(x,"n"),
-#               sens=attr(x,"sens"),spec=attr(x,"spec"),pt.method=attr(x,"pt.method"),call=attr(object,"call"))
-#   }
-#
-# "print.summary.ipooledBin" <-
-#   function(x, ...){
-#     args <- list(...)
-#     scale <- attr(x,"scale")
-#     if(is.null(args$digits)) digits <- 4
-#     else digits <- args$digits
-#     cat("Estimation of Binomial Proportion for Pooled Data using an Imperfect Test\n\n")
-#     cat(paste0("Call: ", deparse(attr(x,"call"),width.cutoff = 120),"\n\n"))
-#
-#
-#     if(all(attr(x,"sens")==1)) sens <- 1
-#     else sens <- attr(x,"sens")
-#     if(all(attr(x,"spec")==1)) spec <- 1
-#     else spec <- attr(x,"spec")
-#     cat(paste0("Call: ", deparse(attr(x,"call"),width.cutoff = 120),"\n\n"))
-#     cat(paste0("Sensitivity : ",paste0(" ",sens,collapse=","),"\n"))
-#     cat(paste0("Specificity : ",paste0(" ",spec,collapse=","),"\n"))
-#     cat("\n")
-#     cat(paste("Point estimator:",attr(x,"pt.method"),"\n"))
-#     cat("\n")
-#
-#     cat(paste("Number of individuals:",sum(attr(x,"n") * attr(x,"m")),"\n"))
-#     cat(paste("Number of pools:",sum(attr(x,"n")),"\n"))
-#     cat(paste("Number of positive pools:",sum(attr(x,"x")),"\n"))
-#     cat("\n")
-#     print.ipooledBin(x, ..., scale=scale)
-#     invisible(x)
-#   }
-
 
 "summary.ipooledBin" <- function(object, ...){
   groups  <- attr(object,"groups")
