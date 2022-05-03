@@ -5,7 +5,6 @@ Version 1.1
 
   1. Removed records with n=0 or m=0 in pooledBin/pIR, pooledBinDiff/pIRDiff rather than
      the call resulting in what appears to be a convergence error.
-
   2. Changed the basic returned objects for all classes to (essentially) data frames for ready and
      more intuitive assignment and subsetting, as with data frames.  These objects still carry attributes,
      accessible with attr(obj,"<attribute name>").
