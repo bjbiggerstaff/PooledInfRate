@@ -14,6 +14,8 @@ Version 1.1
       b.  These functions are really just copies of the built-in code for [.data.frame, though
           because .Internal() calls cannot be included in packages, a slight revision was needed
           at the single line this occured; this is noted in the code.
+  3. Added an argument simple = TRUE/FALSE to summary methods for pooledBin/pIR and pooledBinDiff/pIRDiff
+     to return the detailed result tables as data frames.
 
   Behind the scenes:
 
