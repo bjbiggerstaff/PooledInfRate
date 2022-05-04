@@ -8,7 +8,7 @@ PooledInfRate: Estimation from pooled or group testing.
 The website for this project is
 <https://github.com/CDCgov/PooledInfRate>.
 
-PooledInfRate is an [R](www.r-project.org) that package provides
+PooledInfRate is an [R](www.r-project.org) package that includes
 functions to estimate proportions from pooled or group testing data.
 There is also functionality to estimate differences of such proportions.
 Finally, for entomologists, there is functionality to compute the
