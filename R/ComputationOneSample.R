@@ -146,7 +146,7 @@
       wi.p.prime <- (vi.p.prime * sum(vi.p) - vi.p * sum(vi.p.prime)) / sum(vi.p)^2
       p.new <- p.old +  (sum(m*x/(1-(1-p.old)^m) - m*wi.p/2) - (N-1/2)) /
         sum(m^2*x*(1-p.old)^(m-1) / (1-(1-p.old)^m)^2 + m * wi.p.prime / 2)
-      if(p.new <= 0) p.new <- # could use MIR sum(x)/sum(m*n)
+      if(p.new <= 0) p.new <- sum(x)/sum(m*n)
         if(p.new > 1) p.new <- pooledbinom.mle(x,m,n)
       if(converge.f(p.old, p.new) < tol) done <- TRUE
     }
