@@ -3,26 +3,16 @@ Version 1.1
 
   User visible:
 
-  1. Removed records with n=0 or m=0 in pooledBin/pIR, pooledBinDiff/pIRDiff rather than
-     the call resulting in what appears to be a convergence error.
-  2. Changed the basic returned objects for all classes to (essentially) data frames for ready and
-     more intuitive assignment and subsetting, as with data frames.  These objects still carry attributes,
-     accessible with attr(obj,"<attribute name>").
-      a.  Because returned objects were not of class data frame, this meant including
-          "subsetting" ("[") methods for all the classes.
-      b.  These functions are really just copies of the built-in code for [.data.frame, though
-          because .Internal() calls cannot be included in packages, a slight revision was needed
-          at the single line this occured; this is noted in the code.
-  3. Added an argument simple = TRUE/FALSE to summary methods for pooledBin/pIR and pooledBinDiff/pIRDiff
-     to return the detailed result tables as data frames.
+  1. Removed records with n=0 or m=0 in pooledBin/pIR, pooledBinDiff/pIRDiff, and vectorIndex/VI rather than the call resulting in what appears to be a convergence error.
+  2. Changed the basic returned objects for all classes to (essentially) data frames for ready and more intuitive assignment and subsetting, as with data frames.  These objects still carry attributes, accessible with attr(obj,"<attribute name>").
+      a.  Because returned objects were not of class data frame, this meant including "subsetting" ("[") methods for all the classes.
+      b.  These functions are really just copies of the built-in code for [.data.frame, though because .Internal() calls cannot be included in packages, a slight revision was needed at the single line this occured; this is noted in the code.
+  3. Added an argument simple = TRUE/FALSE to summary methods for pooledBin/pIR and pooledBinDiff/pIRDiff to return the detailed result tables as data frames.
 
   Behind the scenes:
 
   1. Removed the "List" structure for dealing with more than one group
-      a. In the original code design, separate functionality was to keep the case with
-         just one group separate for a different printing style (historical consistency).
-         In hindsight, this was an unnecessary and inefficient complication, so this
-         update presents consistent output for one or more groups.
+      a. In the original code design, separate functionality was to keep the case with just one group separate for a different printing style (historical consistency). In hindsight, this was an unnecessary and inefficient complication, so this update presents consistent output for one or more groups.
       b. This resulted in a great "slimming down" of the code.
 
 Version 1.0
