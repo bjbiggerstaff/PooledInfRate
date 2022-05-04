@@ -72,7 +72,7 @@
     ans.nbar[[i]] <- vector(mode="list",length=nVectors)
     names(ans.nbar[[i]]) <- Vectors
     for(j in 1:nVectors){
-      sub <- (group==groups[i]) & (vector == Vectors[j])
+      sub <- (group==groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0) # can't do this above because of NAs
       tmp.pb <- pooledBin.fit(x[sub], m[sub], n[sub],
                               pt.method=pt.method,
                               ci.method=ci.method,
@@ -197,7 +197,7 @@
       ans.nbar[[i]] <- vector(mode="list",length=nVectors)
       names(ans.nbar[[i]]) <- Vectors
       for(j in 1:nVectors){
-        sub <- (group == groups[i]) & (vector == Vectors[j])
+        sub <- (group == groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0) # can't do this above because of NAs
         tmp.pb <- pooledBin.fit(x[sub], m[sub], n[sub],
                                pt.method=pt.method,
                                ci.method=ci.method,
@@ -312,7 +312,7 @@
     ans.nbar[[i]] <- vector(mode="list",length=nVectors)
     names(ans.nbar[[i]]) <- Vectors
     for(j in 1:nVectors){
-      sub <- (group==groups[i]) & (vector == Vectors[j])
+      sub <- (group==groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0)
       tmp.pb <- pooledBin.fit(x[sub], m[sub], n[sub],
                               pt.method=pt.method,
                               ci.method=ci.method,
@@ -440,7 +440,7 @@
     ans.nbar[[i]] <- vector(mode="list",length=nVectors)
     names(ans.nbar[[i]]) <- Vectors
     for(j in 1:nVectors){
-      sub <- (group == groups[i]) & (vector == Vectors[j])
+      sub <- (group == groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0)
       tmp.pb <- pooledBin.fit(x[sub], m[sub], n[sub],
                               pt.method=pt.method,
                               ci.method=ci.method,
