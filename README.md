@@ -18,7 +18,7 @@ vector mosquitoes.
 
 ## Installation
 
-You can install PooledInfRate from GitLab:
+You can install PooledInfRate from GitHub:
 
 ``` r
 # To install from GitHub

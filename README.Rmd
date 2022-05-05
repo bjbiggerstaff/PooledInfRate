@@ -24,7 +24,7 @@ PooledInfRate is an [R](www.r-project.org) package that includes functions to es
 
 ## Installation
 
-You can install PooledInfRate from GitLab:
+You can install PooledInfRate from GitHub:
 
 ``` r
 # To install from GitHub
