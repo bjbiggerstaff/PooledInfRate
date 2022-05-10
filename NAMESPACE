@@ -71,7 +71,7 @@ S3method(print, vectorIndex)
 S3method(summary, vectorIndex)
 #S3method(summary, vectorIndexList)
 S3method("[",vectorIndex)
-S3method("[",summary.vectorIndex)
+#S3method("[",summary.vectorIndex)
 
 S3method(print, summary.vectorIndex)
 #S3method(print, summary.vectorIndexList)
@@ -83,7 +83,7 @@ S3method(summary, VI)
 #S3method(summary, VIList)
 
 S3method("[",VI)
-S3method("[",summary.VI)
+#S3method("[",summary.VI)
 
 S3method(print, summary.VI)
 #S3method(print, summary.VIList)
