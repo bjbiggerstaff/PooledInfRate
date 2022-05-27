@@ -20,7 +20,7 @@
   ci.method <- match.arg(ci.method)
   if(!missing(group)) group.var <- deparse(substitute(group))
   else group.var = ""
-  if(missing(vector)) stop("Must have vectors specified to use vectorIndex().\n")
+  if(missing(vector)) stop("Must have vector specified to use vectorIndex().\n")
   vectors.var <- deparse(substitute(vector))
   Vectors <- unique(vector)
   nVectors <- length(Vectors)
@@ -52,11 +52,13 @@
     group.var <- deparse(substitute(group))
     groups <- unique(group)
     nGroups <- length(groups)
+    group.dat <- data.frame(Group=group)
   } else {
     group.var <= ""
     group <- rep("SINGLE",length(x))
     groups <- unique(group)
     nGroups <- 1
+    group.dat <- data.frame()
   }
 
 
@@ -98,16 +100,24 @@
   }
   ans.lst <- ans
 
-  ans <- data.frame(Group = groups,
+  #ans <- data.frame(Group = groups,
+  #                  VI = rep(0,nGroups))
+  ans <- cbind(group.dat[!duplicated(group),],
+               data.frame(
                     VI = rep(0,nGroups))
+  )
+
   for(i in 1:nGroups) ans$VI[i] <- ans.lst[[i]]
 
   if(group.var != "") names(ans)[1] <- group.var
 
   if(nGroups == 1) ans$Group <- NULL
+  # fix row names after subsetting
+  group.dat <- as.data.frame(group.dat[!duplicated(group),])
+  rownames(group.dat) <- 1:nrow(group.dat)
 
   ans <- structure(ans,class = "vectorIndex", fullList = ans.lst, group.names = groups, group.var = group.var,
-                   n.groups = nGroups,
+                   n.groups = nGroups, group.dat = group.dat,
                    vector = Vectors, vectors.var = vectors.var, traptime.var = traptime.var, #deparse(substitute(vectors)),
                    p = ans.p, n = ans.nbar,
                    n.use.na = n.use.na, n.use.traps = n.use.traps,
@@ -135,7 +145,8 @@
 
 
   vars <- VIParseFormula(x,data)
-  if(any(sapply(vars,length)>1)) stop("only variable names permitted in formula; perhaps use the default call")
+  # -4 is the grouping variable, which can (now) have length > 1
+  if(any(sapply(vars,length)[-4] >1)) stop("only variable names permitted in formula; perhaps use the default call")
 
   if(is.na(vars$vector) | is.null(vars$vector) | vars$vector=="")
     stop("Must have vectors specified to use vectorIndex().\n")
@@ -152,9 +163,24 @@
   } else{
     trap.time <- eval(parse(text=vars$traptime),data)
   }
-  if(!is.null(vars$group)){
+  if(!is.null(vars$group[1])){
+    # NEW as of 5/27/2022 to allow multiple grouping variables
+    n.group.var <- length(vars$group)
+    group.dat <- as.data.frame(matrix(nrow=length(x),ncol=n.group.var))
+    names(group.dat) <- vars$group
+
+    for(i in 1:n.group.var) group.dat[,i] <- eval(parse(text=vars$group[i]),data)
+
+    #print(interaction(group.dat,drop=TRUE)) # drop unused levels
+    #return(group.dat)
+
+    # end of NEW
+
+
+
     group.var <- vars$group
-    group <- eval(parse(text=vars$group), data)
+    #group <- eval(parse(text=vars$group), data)
+    group <- interaction(group.dat, drop = TRUE)
     groups <- unique(group)
     nGroups <- length(groups)
   }  else{
@@ -162,6 +188,7 @@
     group <- rep("SINGLE",length(x))
     groups <- unique(group)
     nGroups <- 1
+    group.dat <- data.frame()
   }
 
   # note missing X but valid m and n, to be used for vector abundance
@@ -226,16 +253,25 @@
 
     ans.lst <- ans
 
-    ans <- data.frame(Group = groups,
-                      VI = rep(0,nGroups))
+    ans <- cbind(group.dat[!duplicated(group),],
+                 data.frame(VI = rep(0, nGroups))
+    )
+    #ans <- data.frame(Group = groups,
+    #                  VI = rep(0,nGroups))
+
     for(i in 1:nGroups) ans$VI[i] <- ans.lst[[i]]
 
-    if(group.var != "") names(ans)[1] <- group.var
+    if(group.var[1] != "") names(ans)[1:length(vars$group)] <- group.var
 
     if(nGroups == 1) ans$Group <- NULL
 
+    # fix row names after subsetting
+    group.dat <- as.data.frame(group.dat[!duplicated(group),])
+    rownames(group.dat) <- 1:nrow(group.dat)
+
     ans <- structure(ans,class = "vectorIndex", fullList = ans.lst, group.names = groups,
                      group.var = vars$group, n.groups = nGroups,
+                     group.dat = group.dat,
                      vector = Vectors, vectors.var = vars$vector, traptime.var=vars$traptime,
                      p = ans.p, n = ans.nbar,
                      n.use.na = n.use.na, n.use.traps = n.use.traps,
@@ -260,7 +296,7 @@
   ci.method <- match.arg(ci.method)
   if(!missing(group)) group.var <- deparse(substitute(group))
   else group.var = ""
-  if(missing(vector)) stop("Must have vectors specified to use VI().\n")
+  if(missing(vector)) stop("Must have vector specified to use vectorIndex().\n")
   vectors.var <- deparse(substitute(vector))
   Vectors <- unique(vector)
   nVectors <- length(Vectors)
@@ -292,11 +328,13 @@
     group.var <- deparse(substitute(group))
     groups <- unique(group)
     nGroups <- length(groups)
+    group.dat <- data.frame(Group=group)
   } else {
-    group.var <- ""
+    group.var <= ""
     group <- rep("SINGLE",length(x))
     groups <- unique(group)
     nGroups <- 1
+    group.dat <- data.frame()
   }
 
 
@@ -312,7 +350,7 @@
     ans.nbar[[i]] <- vector(mode="list",length=nVectors)
     names(ans.nbar[[i]]) <- Vectors
     for(j in 1:nVectors){
-      sub <- (group==groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0)
+      sub <- (group==groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0) # can't do this above because of NAs
       tmp.pb <- pooledBin.fit(x[sub], m[sub], n[sub],
                               pt.method=pt.method,
                               ci.method=ci.method,
@@ -338,17 +376,24 @@
   }
   ans.lst <- ans
 
-  ans <- data.frame(Group = groups,
-                    VI = rep(0,nGroups))
+  #ans <- data.frame(Group = groups,
+  #                  VI = rep(0,nGroups))
+  ans <- cbind(group.dat[!duplicated(group),],
+               data.frame(
+                 VI = rep(0,nGroups))
+  )
+
   for(i in 1:nGroups) ans$VI[i] <- ans.lst[[i]]
 
   if(group.var != "") names(ans)[1] <- group.var
 
   if(nGroups == 1) ans$Group <- NULL
-
+  # fix row names after subsetting
+  group.dat <- as.data.frame(group.dat[!duplicated(group),])
+  rownames(group.dat) <- 1:nrow(group.dat)
 
   ans <- structure(ans,class = "VI", fullList = ans.lst, group.names = groups, group.var = group.var,
-                   n.groups = nGroups,
+                   n.groups = nGroups, group.dat = group.dat,
                    vector = Vectors, vectors.var = vectors.var, traptime.var = traptime.var, #deparse(substitute(vectors)),
                    p = ans.p, n = ans.nbar,
                    n.use.na = n.use.na, n.use.traps = n.use.traps,
@@ -356,6 +401,11 @@
                    call=call)
 
   ans
+
+
+
+
+
 }
 
 
@@ -367,8 +417,9 @@
                                   pt.method = c("firth","gart","bc-mle","mle","mir"),
                                   ci.method = c("skew-score","bc-skew-score","score","lrt","wald","mir"),
                                   scale=1, alpha=0.05, tol=.Machine$double.eps^0.5, ...) {
+
   call <- match.call()
-  call[[1]] <- as.name("VI")
+  call[[1]] <- as.name("vectorIndex")
   pt.method <- match.arg(pt.method)
   ci.method <- match.arg(ci.method)
   #print(call)
@@ -378,10 +429,11 @@
 
 
   vars <- VIParseFormula(x,data)
-  if(any(sapply(vars,length)>1)) stop("only variable names permitted in formula; perhaps use the default call")
+  # -4 is the grouping variable, which can (now) have length > 1
+  if(any(sapply(vars,length)[-4] >1)) stop("only variable names permitted in formula; perhaps use the default call")
 
   if(is.na(vars$vector) | is.null(vars$vector) | vars$vector=="")
-    stop("Must have vectors specified to use VI().\n")
+    stop("Must have vectors specified to use vectorIndex().\n")
   vector <- eval(parse(text=vars$vector),data)
   Vectors <- unique(vector)
   nVectors <- length(Vectors)
@@ -395,9 +447,24 @@
   } else{
     trap.time <- eval(parse(text=vars$traptime),data)
   }
-  if(!is.null(vars$group)){
+  if(!is.null(vars$group[1])){
+    # NEW as of 5/27/2022 to allow multiple grouping variables
+    n.group.var <- length(vars$group)
+    group.dat <- as.data.frame(matrix(nrow=length(x),ncol=n.group.var))
+    names(group.dat) <- vars$group
+
+    for(i in 1:n.group.var) group.dat[,i] <- eval(parse(text=vars$group[i]),data)
+
+    #print(interaction(group.dat,drop=TRUE)) # drop unused levels
+    #return(group.dat)
+
+    # end of NEW
+
+
+
     group.var <- vars$group
-    group <- eval(parse(text=vars$group), data)
+    #group <- eval(parse(text=vars$group), data)
+    group <- interaction(group.dat, drop = TRUE)
     groups <- unique(group)
     nGroups <- length(groups)
   }  else{
@@ -405,6 +472,7 @@
     group <- rep("SINGLE",length(x))
     groups <- unique(group)
     nGroups <- 1
+    group.dat <- data.frame()
   }
 
   # note missing X but valid m and n, to be used for vector abundance
@@ -440,7 +508,7 @@
     ans.nbar[[i]] <- vector(mode="list",length=nVectors)
     names(ans.nbar[[i]]) <- Vectors
     for(j in 1:nVectors){
-      sub <- (group == groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0)
+      sub <- (group == groups[i]) & (vector == Vectors[j]) & (m>0) & (n>0) # can't do this above because of NAs
       tmp.pb <- pooledBin.fit(x[sub], m[sub], n[sub],
                               pt.method=pt.method,
                               ci.method=ci.method,
@@ -469,18 +537,25 @@
 
   ans.lst <- ans
 
-  ans <- data.frame(Group = groups,
-                    VI = rep(0,nGroups))
+  ans <- cbind(group.dat[!duplicated(group),],
+               data.frame(VI = rep(0, nGroups))
+  )
+  #ans <- data.frame(Group = groups,
+  #                  VI = rep(0,nGroups))
 
   for(i in 1:nGroups) ans$VI[i] <- ans.lst[[i]]
 
-  if(group.var != "") names(ans)[1] <- group.var
-
+  if(group.var[1] != "") names(ans)[1:length(vars$group)] <- group.var
 
   if(nGroups == 1) ans$Group <- NULL
 
+  # fix row names after subsetting
+  group.dat <- as.data.frame(group.dat[!duplicated(group),])
+  rownames(group.dat) <- 1:nrow(group.dat)
+
   ans <- structure(ans,class = "VI", fullList = ans.lst, group.names = groups,
-                   group.var = group.var, n.groups = nGroups,
+                   group.var = vars$group, n.groups = nGroups,
+                   group.dat = group.dat,
                    vector = Vectors, vectors.var = vars$vector, traptime.var=vars$traptime,
                    p = ans.p, n = ans.nbar,
                    n.use.na = n.use.na, n.use.traps = n.use.traps,
@@ -488,6 +563,9 @@
                    call=call)
 
   ans
+
+
+
 }
 
 
@@ -870,13 +948,21 @@
   out.lst <-  list(vi=x$VI,vector=attr(x,"vectors"),
                  p=attr(x,"p"),n=attr(x,"n"),nGroups = attr(x,"n.groups"), nVectors =length(attr(x,"vector")),
                  vi.obj=object)
+
   if(nGroups > 1){
-    out.dat <- data.frame(rep(attr(out.lst$vi.obj,"group.names"),each=nVectors),
+    #out.dat <- data.frame(rep(attr(out.lst$vi.obj,"group.names"),each=nVectors),
+    #                      rep(attr(out.lst$vi.obj, "vector"),nGroups),
+    #                      as.vector(unlist(out.lst$n)),
+    #                      as.vector(unlist(out.lst$p)),
+    #                      as.vector(unlist(out.lst$n) * unlist(out.lst$p)))
+    group.dat <- attr(object,"group.dat")
+    out.dat <- data.frame(group.dat[rep(1:nrow(group.dat),each=nVectors),],
                           rep(attr(out.lst$vi.obj, "vector"),nGroups),
                           as.vector(unlist(out.lst$n)),
                           as.vector(unlist(out.lst$p)),
                           as.vector(unlist(out.lst$n) * unlist(out.lst$p)))
     names(out.dat) <- c(attr(out.lst$vi.obj,"group.var"),attr(out.lst$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
+    rownames(out.dat) <- 1:nrow(out.dat)
   } else {
     out.dat <- data.frame(rep(attr(out.lst$vi.obj, "vector"),nGroups),
                           as.vector(unlist(out.lst$n)),
@@ -895,21 +981,22 @@
 "print.summary.vectorIndex" <- function(x, ...){
   nGroups <- x$nGroups
   nVectors <- x$nVectors
-  if(nGroups > 1){
-    out.dat <- data.frame(rep(attr(x$vi.obj,"group.names"),each=nVectors),
-                          rep(attr(x$vi.obj, "vector"),nGroups),
-                          as.vector(unlist(x$n)),
-                          as.vector(unlist(x$p)),
-                          as.vector(unlist(x$n) * unlist(x$p)))
-    names(out.dat) <- c(attr(x$vi.obj,"group.var"),attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
-  } else {
-    out.dat <- data.frame(rep(attr(x$vi.obj, "vector"),nGroups),
-                          as.vector(unlist(x$n)),
-                          as.vector(unlist(x$p)),
-                          as.vector(unlist(x$n) * unlist(x$p)))
-    names(out.dat) <- c(attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
-
-  }
+  out.dat <- attr(x,"out.dat")
+  # if(nGroups > 1){
+  #   out.dat <- data.frame(rep(attr(x$vi.obj,"group.names"),each=nVectors),
+  #                         rep(attr(x$vi.obj, "vector"),nGroups),
+  #                         as.vector(unlist(x$n)),
+  #                         as.vector(unlist(x$p)),
+  #                         as.vector(unlist(x$n) * unlist(x$p)))
+  #   names(out.dat) <- c(attr(x$vi.obj,"group.var"),attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
+  # } else {
+  #   out.dat <- data.frame(rep(attr(x$vi.obj, "vector"),nGroups),
+  #                         as.vector(unlist(x$n)),
+  #                         as.vector(unlist(x$p)),
+  #                         as.vector(unlist(x$n) * unlist(x$p)))
+  #   names(out.dat) <- c(attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
+  #
+  # }
 
   cat(paste("\nCall: ", deparse(attr(x$vi.obj,"call"),width.cutoff=100,nlines=1),"\n\n"))
 
@@ -934,13 +1021,21 @@
   out.lst <-  list(vi=x$VI,vector=attr(x,"vectors"),
                    p=attr(x,"p"),n=attr(x,"n"),nGroups = attr(x,"n.groups"), nVectors =length(attr(x,"vector")),
                    vi.obj=object)
+
   if(nGroups > 1){
-    out.dat <- data.frame(rep(attr(out.lst$vi.obj,"group.names"),each=nVectors),
+    #out.dat <- data.frame(rep(attr(out.lst$vi.obj,"group.names"),each=nVectors),
+    #                      rep(attr(out.lst$vi.obj, "vector"),nGroups),
+    #                      as.vector(unlist(out.lst$n)),
+    #                      as.vector(unlist(out.lst$p)),
+    #                      as.vector(unlist(out.lst$n) * unlist(out.lst$p)))
+    group.dat <- attr(object,"group.dat")
+    out.dat <- data.frame(group.dat[rep(1:nrow(group.dat),each=nVectors),],
                           rep(attr(out.lst$vi.obj, "vector"),nGroups),
                           as.vector(unlist(out.lst$n)),
                           as.vector(unlist(out.lst$p)),
                           as.vector(unlist(out.lst$n) * unlist(out.lst$p)))
     names(out.dat) <- c(attr(out.lst$vi.obj,"group.var"),attr(out.lst$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
+    rownames(out.dat) <- 1:nrow(out.dat)
   } else {
     out.dat <- data.frame(rep(attr(out.lst$vi.obj, "vector"),nGroups),
                           as.vector(unlist(out.lst$n)),
@@ -959,21 +1054,22 @@
 "print.summary.VI" <- function(x, ...){
   nGroups <- x$nGroups
   nVectors <- x$nVectors
-  if(nGroups > 1){
-    out.dat <- data.frame(rep(attr(x$vi.obj,"group.names"),each=nVectors),
-                          rep(attr(x$vi.obj, "vector"),nGroups),
-                          as.vector(unlist(x$n)),
-                          as.vector(unlist(x$p)),
-                          as.vector(unlist(x$n) * unlist(x$p)))
-    names(out.dat) <- c(attr(x$vi.obj,"group.var"),attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
-  } else {
-    out.dat <- data.frame(rep(attr(x$vi.obj, "vector"),nGroups),
-                          as.vector(unlist(x$n)),
-                          as.vector(unlist(x$p)),
-                          as.vector(unlist(x$n) * unlist(x$p)))
-    names(out.dat) <- c(attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
-
-  }
+  out.dat <- attr(x, "out.dat")
+  # if(nGroups > 1){
+  #   out.dat <- data.frame(rep(attr(x$vi.obj,"group.names"),each=nVectors),
+  #                         rep(attr(x$vi.obj, "vector"),nGroups),
+  #                         as.vector(unlist(x$n)),
+  #                         as.vector(unlist(x$p)),
+  #                         as.vector(unlist(x$n) * unlist(x$p)))
+  #   names(out.dat) <- c(attr(x$vi.obj,"group.var"),attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
+  # } else {
+  #   out.dat <- data.frame(rep(attr(x$vi.obj, "vector"),nGroups),
+  #                         as.vector(unlist(x$n)),
+  #                         as.vector(unlist(x$p)),
+  #                         as.vector(unlist(x$n) * unlist(x$p)))
+  #   names(out.dat) <- c(attr(x$vi.obj,"vectors.var"),"Avg N","P","(Avg N) * P")
+  #
+  # }
 
   cat(paste("\nCall: ", deparse(attr(x$vi.obj,"call"),width.cutoff=100,nlines=1),"\n\n"))
 

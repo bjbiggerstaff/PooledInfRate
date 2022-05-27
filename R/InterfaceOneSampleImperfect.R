@@ -94,7 +94,7 @@
     #data <- na.omit(data)
 
     vars <- pooledBinParseFormula(x, data)
-    if(any(sapply(vars,length)>1)) stop("only variable names permitted in formula; perhaps use the default call")
+    if(any(sapply(vars,length)[1:3]>1)) stop("only variable names permitted in formula; perhaps use the default call")
 
     # retrieve values from data using the character name
     # use the eval(parse(text=XX), data) construct in case data is left unspecified,
@@ -107,8 +107,16 @@
     else n <- rep(1,length(x)) # default n
 
     if(!is.null(vars$group)){
+      # NEW as of 5/27/2022 to allow multiple grouping variables
+      n.group.var <- length(vars$group)
+      group.dat <- as.data.frame(matrix(nrow=length(x),ncol=n.group.var))
+      names(group.dat) <- vars$group
+
+      for(i in 1:n.group.var) group.dat[,i] <- eval(parse(text=vars$group[i]),data)
+
       group.var <- vars$group
-      group <- eval(parse(text=vars$group), data)
+      #group <- eval(parse(text=vars$group), data)
+      group <- interaction(group.dat, drop=TRUE)
       groups <- unique(group)
       nGroups <- length(groups)
     }  else{
@@ -116,6 +124,7 @@
       groups <- unique(group)
       nGroups <- 1
       group.var <- ""
+      group.dat <- data.frame()
     }
 
       ans <- vector(mode="list",length=nGroups)
@@ -145,20 +154,34 @@
 
       ans.lst <- ans
 
-      ans <- data.frame(Group = groups,
+      ans <- cbind(group.dat[!duplicated(group),],
+                   data.frame(
                         P = rep(0,  nGroups),
                         Scale = rep(scale, nGroups))
+      )
+      #ans <- data.frame(Group = groups,
+      #                  P = rep(0,  nGroups),
+      #                  Scale = rep(scale, nGroups))
 
-      if(group.var != "") names(ans)[1] <- group.var
+      #if(group.var != "") names(ans)[1] <- group.var
 
-      for (i in 1:nGroups) ans[i, 2:3] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p, 1)
+      if (!is.null(vars$group)){
+        #names(ans)[1] <- paste0(vars$group,collapse=".") # new as of 5/26/2022 for multiple grouping variables
+        names(ans)[1:length(vars$group)] <- vars$group
+      }
+
+      for (i in 1:nGroups) ans[i, (ncol(group.dat)-1) + (2:3)] <- ans.lst[[i]]$scale * c(ans.lst[[i]]$p, 1)
       if (all(ans$Scale == 1)) ans$Scale <- NULL
 
       if(nGroups == 1) ans$Group <- NULL
 
+      # fix row names after subsetting
+      group.dat <- as.data.frame(group.dat[!duplicated(group),])
+      rownames(group.dat) <- 1:nrow(group.dat)
+
 
       ans <- structure(ans, class = "ipooledBin", fullList = ans.lst, groups = groups, group.var = group.var,
-                       n.groups = nGroups,
+                       n.groups = nGroups,group.dat = group.dat,
                        x=x,m=m,n=n,
                        sens=sens,spec=spec,scale = scale, pt.method=pt.method,call=call)
 
@@ -181,10 +204,19 @@
   #attributes(out) <- list(class = "summary.pooledBinList",
   #                        names = grp.names,group.var = attr(object,"group.var"))
 
+  group.dat <- as.data.frame(attr(object,"group.dat"))
+
+  if(ncol(group.dat)==0){
+    group.dat <- data.frame(Group=0)
+  } else {
+    names(group.dat) <- names(object)[1:length(attr(object,"group.var"))]
+  }
+
   structure(out, class = "summary.ipooledBin",
             n.groups = attr(object,"n.groups"),
             groups = groups,
             group.var = attr(object,"group.var"),
+            group.dat = group.dat,
             scale = attr(object,"scale"),
                        x=attr(object,"x"),m=attr(object,"m"),n=attr(object,"n"),
             sens = attr(object,"sens"),
@@ -195,15 +227,25 @@
 
 "print.summary.ipooledBin" <- function(x, ...){
   n <- length(x)
-  out <- data.frame(Group = attr(x,"groups"),
+  out <- cbind(attr(x,"group.dat"),
+               data.frame(
                     PointEst = rep(0,n),
                     N = rep(0,n),
                     NumPools = rep(0,n),
                     NumPosPools = rep(0,n),
                     Scale = rep(1,n))
-  if(attr(x,"n.groups") != 1) names(out)[1] <- attr(x,"group.var")
+  )
+  #out <- data.frame(Group = attr(x,"groups"),
+  #                  PointEst = rep(0,n),
+  #                  N = rep(0,n),
+  #                  NumPools = rep(0,n),
+  #                  NumPosPools = rep(0,n),
+  #                  Scale = rep(1,n))
+  print(length(attr(x,"group.var")))
+  if(attr(x,"n.groups") != 1) names(out)[1:length(attr(x,"group.var"))] <- attr(x,"group.var")
+
   for(i in 1:n)
-    out[i,2:6] <- c(attr(x,"scale") * x[[i]][["P"]], x[[i]][["N"]], x[[i]][["NumPools"]], x[[i]][["NumPosPools"]], attr(x,"scale"))
+    out[i,(length(attr(x,"group.var"))-1) + (2:6)] <- c(attr(x,"scale") * x[[i]][["P"]], x[[i]][["N"]], x[[i]][["NumPools"]], x[[i]][["NumPosPools"]], attr(x,"scale"))
 
   if(attr(x,"n.groups") == 1) out$Group <- NULL
 

@@ -106,7 +106,7 @@
     if(missing(data))
       data <- environment(x)
     vars <- pooledBinParseFormula(x, data)
-    if(any(sapply(vars,length)>1)) stop("only variable names permitted in formula; perhaps use the default call")
+    #if(any(sapply(vars,length)>1)) stop("only variable names permitted in formula; perhaps use the default call")
 
     # omit records with missing data -- note, if data contains records missing
     # anywhere (even not in X, M, N, Group, they are omitted), so care should be

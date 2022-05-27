@@ -1,3 +1,12 @@
+Version 1.2
+-----------
+
+  User visible:
+
+  1. Added facility to include multiple grouping variables to the formula interface (but not to the default interface) for pooledBin/pIR, vectorIndex/VI, and ipooledBin functions; this uses an asterisk (*) to separate the groups after the "|" in the formula, such as G1*G2 for groups G1 and G2.  (Note that as of now this is not available for the difference functions pooledBinDiff/pIRDiff. These still require just one grouping variable at a time, since all pairwise comparisons within the group are computed and it is unclear which comparisons may be wanted with multiple groups.)
+
+  2. Fixed output name "PointEst" to "P" for summary calls to pooledBin/pIR.
+
 Version 1.1
 -----------
 

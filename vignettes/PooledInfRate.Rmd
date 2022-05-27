@@ -114,6 +114,11 @@ pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat)
 print(pooledBin(Pos ~ PoolSize + n(NumPools) | Location, ex2.dat), digits = 3)
 ```
 
+With package version 1.2, results for the combinations of multiple grouping variables may be obtained by specifying the grouping variables after the <tt>|</tt> as above and separated by <tt>*</tt> characters.  As an example using the <tt>mosq.dat</tt> data set above, 
+```{r}
+pooledBin(Pos ~ PoolSize | Zone * Species, mosq.dat)
+```
+
 ###### Access results
 
 Beginning with package version 1.1, returned objects of class <tt>pooledBin</tt>/<tt>pIR</tt> can be accessed like data frames, using both <tt>[.</tt> and <tt>$</tt> extractor methods.  Examples are
@@ -129,7 +134,7 @@ pooledBin(Pos ~ PoolSize | Zone, mosq.dat)[,"P"]
 pooledBin(Pos ~ PoolSize | Zone, mosq.dat)$P
 
 # assign and just CIs
-pb.out <-  pooledBin(Pos ~ PoolSize | Zone, mosq.dat)
+pb.out <-  pooledBin(Pos ~ PoolSize | Zone * Species, mosq.dat)
 pb.out[,3:4]
 pb.out[c("Lower","Upper")]
 ```
@@ -211,7 +216,7 @@ The estimation methods used require iterative numerical computation, and the par
 ### Differences of proportions (two-sample)
 
 
-The "equal" pair of functions <tt>pooledBinDiff</tt> / <tt>pIRDiff</tt> compute confidence intervals for differences of proportions, as detailed in @Big2008. The interface for the default call is an expansion of the one-sample call: <tt>pooledBin(x1,m1,x2,m2)</tt>.  For the formula interface, these functions are exactly the same as for the one-sample case, only a <tt>group</tt> variable is in this case _required_.  Estimates of differences and CIs for all pairwise differences of the levels of the grouping variable are computed, and a <tt>summary</tt> method provides detail, including individual group estimates. Examples follow.
+The "equal" pair of functions <tt>pooledBinDiff</tt> / <tt>pIRDiff</tt> compute confidence intervals for differences of proportions, as detailed in @Big2008. The interface for the default call is an expansion of the one-sample call: <tt>pooledBin(x1,m1,x2,m2)</tt>.  For the formula interface, these functions are exactly the same as for the one-sample case, only a _single_ <tt>group</tt> variable is permitted and it is in this case _required_.  Estimates of differences and CIs for all pairwise differences of the levels of the grouping variable are computed, and a <tt>summary</tt> method provides detail, including individual group estimates. Examples follow.
 ```{r}
 x1 <- c(1,0,0,0)
 m1 <- c(100,50,25,10)
@@ -391,6 +396,11 @@ Estimates based on the uncorrected MLE for imperfect tests are also available by
 ```{r}
 ipooledBin(Pos ~ PoolSize | Species, mosq.dat, sens=0.9, spec=0.95, pt.method="mle") 
 summary(ipooledBin(Pos ~ PoolSize | Species, mosq.dat, sens=0.9, spec=0.95, pt.method="mle"))
+```
+
+Multiple grouping variables may be specified as with the perfect test functions:
+```{r}
+ipooledBin(Pos ~ PoolSize | Species * Zone, mosq.dat, sens=0.9, spec=0.95) 
 ```
 
 Compared to <tt>pooledBin</tt>, the additional parameter <tt>p.start</tt> gives the user the options of specifying a starting starting value for the numerical algorithm (Newton-Raphson) used in estimation; there is a default value set for this when <tt>p.start = NULL</tt>, as is the default.
